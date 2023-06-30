@@ -25,6 +25,7 @@
     let step2: HTMLDivElement;
     let step3: HTMLDivElement;
     let step4: HTMLDivElement;
+    let step5: HTMLDivElement;
     let regDataStep1: object;
     let regDataStep2: object;
     let regDataStep3: object;
@@ -111,6 +112,10 @@
                     console.log(data);
                 }
                 break;
+            case 3:
+                step4.style.display = "none";
+                step5.style.display = "flex";
+                break;
             default:
                 break;
         }
@@ -119,8 +124,8 @@
 
 <main class="m-auto flex flex-col max-w-3xl justify-center items-center gap-4 mt-5">
     <div class="card p-4 variant-soft flex flex-col items-center gap-4">
-        <h1 class="h1 text-center text-2xl">Зарегистрироваться</h1>
-        <form method="POST" action="?/registration" use:enhance>
+        <h1 class="h1 text-center text-2xl">Регистрация</h1>
+        <form action="?/registration" method="POST" use:enhance>
             <div class="flex flex-col items-center gap-4 transition-all" bind:this={step1}>
                 <label class="label flex flex-col w-80 gap-2">
                     <span>Никнейм</span>
@@ -185,6 +190,16 @@
                 <button type="submit" on:click={() => regNextStep()} class="btn variant-filled-primary self-center">Пропустить и зарегистрироваться</button>
             </div>
         </form>
+        <div class="flex-col items-start gap-4 hidden transition-all" bind:this={step5}>
+            <form action="?/activate" method="POST" use:enhance>
+                <label class="label flex flex-col w-80 gap-2">
+                    <span>Введите код из вашей почты: {regData.email}</span>
+                    <input class="input" type="text" name="conf-code"/>
+                </label>
+            </form>
+            <button type="submit" on:click={() => regNextStep()} class="btn variant-filled-primary self-center">Подтвердить код</button>
+        </div>
+        
         <button on:click={() => regNextStep()} class="btn variant-filled-primary" bind:this={regButton}>Зарегистрироваться</button>
     </div>
     <a href="/auth/login" class="have-user">Уже есть аккаунт?</a>

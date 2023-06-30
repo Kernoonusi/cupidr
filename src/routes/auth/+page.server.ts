@@ -1,5 +1,4 @@
 import ky from "ky";
-import { session } from '$app/stores';
 import type { Actions } from "./$types";
 
 function getAge(dateString: string) {
@@ -28,7 +27,7 @@ export const actions: Actions = {
         if(data.get('user-photo')){
             let photo = new FormData();
             photo.append('image', data.get('user-photo')!);
-            let photoUrlObj: any = await ky.post('http://localhost:3000/api/upload', {body: photo}).json();
+            let photoUrlObj: any = await ky.post('http://localhost:3001/upload', {body: photo}).json();
             regData.set('profileImageUrl', photoUrlObj.imageUrl);
         }
 
@@ -37,12 +36,20 @@ export const actions: Actions = {
         regData.append('bio', data.get('user-bio')?.toString()!);
         regData.append('geolocation', data.get('user-geo')?.toString()!);
 
-        let response:any = await ky.post('http://localhost:3000/api/registration', {body: regData}).json();
+        let response:any = await ky.post('http://localhost:3001/auth/signUp', {body: regData}).json();
 
-        cookies.set('refreshToken', response.refreshToken, { path: '/' });       
-        cookies.set('accessToken', response.accessToken, { path: '/' });       
-        cookies.set('userId', response.refreshToken, { path: '/' });
-        $session.token = response.accessToken;
-        $session.refresh_token = response.refreshToken;
+        cookies.set('refreshToken', response.refreshToken, {
+            path: '/',
+            maxAge: 60 * 60 * 24 * 7,
+        });
+        cookies.set('accessToken', response.accessToken, {
+            path: '/',
+            maxAge: 60 * 15,
+        });
+    },
+    activate:async ({ request }) => {
+        const data = await request.formData();
+
+        //TODO: make ky request for activation
     }
 };
