@@ -7,11 +7,11 @@
         <h1 class="text-center text-2xl">Войти</h1>
         <label class="label w-80">
             <span>Почта</span>
-            <input type="email" class="input p-2" name="user-name" required>
+            <input type="email" class="input p-2" name="user-email" autocomplete="email" required>
         </label>
         <label class="label w-80">
             <span>Пароль</span>
-            <input type="password" class="input p-2" name="user-pass" required>
+            <input type="password" class="input p-2" name="user-pass" autocomplete="current-password" required>
         </label>
         <button type="submit" class="btn variant-filled-primary">Войти</button>
     </form>

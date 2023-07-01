@@ -1,5 +1,7 @@
 import ky from "ky";
 import type { Actions } from "./$types";
+import { redirect } from "@sveltejs/kit";
+import accessToken from "$lib/stores/accessToken";
 
 function getAge(dateString: string) {
     const today = new Date();
@@ -13,43 +15,36 @@ function getAge(dateString: string) {
 }
 
 export const actions: Actions = {
-    registration: async ({ cookies, request }) => {
+    registration: async ({ request }) => {
         const data = await request.formData();
         
-        let regData = new FormData();
+        const regData = {
+            "email": data.get('user-email')?.toString()!,
+            "password": data.get('user-pass')?.toString()!,
+            "name": data.get('user-name')?.toString()!,
+            "profileImageUrl": "https://example.com/images/image.png",
+            "age": +getAge(data.get('user-birthday')?.toString()!),
+            "gender": data.get('user-sex')?.toString()!,
+            "lfGender": data.get('user-prefer')?.toString()!,
+            "bio": "",
+            "geolocation": data.get('user-geo')?.toString()!,
+        };
 
-        regData.append('email', data.get('user-email')?.toString()!);
-        regData.append('password', data.get('user-pass')?.toString()!);
-        regData.append('name', data.get('user-name')?.toString()!);
-        regData.append('age', getAge(data.get('user-birthday')?.toString()!));
-        regData.append('profileImageUrl', "");
+        //TODO когда ильяс доделает
+        // if(data.get('user-photo')){
+        //     let photo = new FormData();
+        //     photo.append('image', data.get('user-photo')!);
+        //     let photoUrlObj: any = await ky.post('http://localhost:3001/upload', {body: photo}).json();
+        //     regData.profileImageUrl = photoUrlObj;
+        // }
 
-        if(data.get('user-photo')){
-            let photo = new FormData();
-            photo.append('image', data.get('user-photo')!);
-            let photoUrlObj: any = await ky.post('http://localhost:3001/upload', {body: photo}).json();
-            regData.set('profileImageUrl', photoUrlObj.imageUrl);
-        }
+        if(data.get('user-bio')?.toString())
+            regData.bio = data.get('user-bio')?.toString()!;
 
-        regData.append('gender', data.get('user-sex')?.toString()!);
-        regData.append('lfGender', data.get('user-prefer')?.toString()!);
-        regData.append('bio', data.get('user-bio')?.toString()!);
-        regData.append('geolocation', data.get('user-geo')?.toString()!);
+        let response: any = await ky.post('http://localhost:3001/auth/signUp', {json: regData}).json();
 
-        let response:any = await ky.post('http://localhost:3001/auth/signUp', {body: regData}).json();
+        accessToken.set(response.accessToken);
 
-        cookies.set('refreshToken', response.refreshToken, {
-            path: '/',
-            maxAge: 60 * 60 * 24 * 7,
-        });
-        cookies.set('accessToken', response.accessToken, {
-            path: '/',
-            maxAge: 60 * 15,
-        });
-    },
-    activate:async ({ request }) => {
-        const data = await request.formData();
-
-        //TODO: make ky request for activation
+        throw redirect(301, 'activate');
     }
 };
