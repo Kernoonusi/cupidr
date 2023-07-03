@@ -1,5 +1,5 @@
-import ky from "ky";
-import type { Actions } from "./$types";
+import kyApi from "$lib/api/kyApi";
+import type { Actions } from "../$types";
 import { redirect } from "@sveltejs/kit";
 
 export const actions: Actions = {
@@ -7,7 +7,7 @@ export const actions: Actions = {
         const data = await request.formData();
         
         // TODO: make ky request for activation
-        let activate: any = await ky.post('http://localhost:3001/auth/activate', {json: data}).json();
+        let activate: any = await kyApi.post('/auth/activate', {json: data}).json();
         if(activate.state.status === '404'){
             console.log(activate.error_message);
             

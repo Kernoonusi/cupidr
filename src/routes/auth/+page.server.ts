@@ -1,4 +1,4 @@
-import ky from "ky";
+import kyApi from "$lib/api/kyApi";
 import type { Actions } from "./$types";
 import { redirect } from "@sveltejs/kit";
 import accessToken from "$lib/stores/accessToken";
@@ -22,7 +22,6 @@ export const actions: Actions = {
             "email": data.get('user-email')?.toString()!,
             "password": data.get('user-pass')?.toString()!,
             "name": data.get('user-name')?.toString()!,
-            "profileImageUrl": "https://example.com/images/image.png",
             "age": +getAge(data.get('user-birthday')?.toString()!),
             "gender": data.get('user-sex')?.toString()!,
             "lfGender": data.get('user-prefer')?.toString()!,
@@ -32,16 +31,15 @@ export const actions: Actions = {
 
         //TODO когда ильяс доделает
         // if(data.get('user-photo')){
-        //     let photo = new FormData();
-        //     photo.append('image', data.get('user-photo')!);
-        //     let photoUrlObj: any = await ky.post('http://localhost:3001/upload', {body: photo}).json();
+        //     
+        //     let photoUrlObj: any = await kyApi.post('/upload', {body: photo}).json();
         //     regData.profileImageUrl = photoUrlObj;
         // }
 
         if(data.get('user-bio')?.toString())
             regData.bio = data.get('user-bio')?.toString()!;
 
-        let response: any = await ky.post('http://localhost:3001/auth/signUp', {json: regData}).json();
+        let response: any = await kyApi.post('/auth/signUp', {json: regData}).json();
 
         accessToken.set(response.accessToken);
 

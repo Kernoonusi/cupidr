@@ -1,7 +1,7 @@
-import ky from "ky";
 import type { Actions } from "./$types";
 import { redirect } from "@sveltejs/kit";
 import accessToken from "$lib/stores/accessToken";
+import kyApi from "$lib/api/kyApi";
 
 export const actions: Actions = {
     login:async ({ request }) => {
@@ -12,7 +12,7 @@ export const actions: Actions = {
             "password": data.get('user-pass')?.toString()!,
         };
 
-        let response: any = await ky.post('http://localhost:3001/auth/signIn', {json: logData}).json();
+        let response: any = await kyApi.post('/auth/signIn', {json: logData}).json();
 
         accessToken.set(response.accessToken);
 
