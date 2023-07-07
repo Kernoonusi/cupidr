@@ -146,7 +146,7 @@
     <div class="card py-4 variant-soft flex flex-col items-center gap-4">
         <h1 class="h1 text-center text-2xl">Регистрация</h1>
         <form action="?/registration" method="POST" bind:this={formDom} use:enhance class="relative overflow-hidden"> 
-            <div class="flex flex-col p-4 items-center transition-all snap-y overflow-y-scroll form-div">
+            <div class="flex flex-col p-4 items-center transition-all snap-y overflow-y-scroll form-div scroll-smooth">
                 <section class="flex flex-col gap-2" id="step1">
                     <label class="label flex flex-col w-80 gap-2 snap-start">
                         <span>Имя</span>
