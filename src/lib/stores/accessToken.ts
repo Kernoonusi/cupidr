@@ -1,15 +1,15 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-const defaultValue = '';
-const stored = browser ? window.localStorage.getItem('accessToken') ?? defaultValue : defaultValue;
-
-export const accessToken = writable<string>(stored);
-
+const defaultValue = '0';
+const initialValue = browser ? window.localStorage.getItem('accessToken') ?? defaultValue : defaultValue;
+ 
+const accessToken = writable<string>(initialValue);
+ 
 accessToken.subscribe((value) => {
   if (browser) {
-    window.localStorage.setItem('theme', value);
+    window.localStorage.setItem('accessToken', value);
   }
 });
-
+ 
 export default accessToken;
