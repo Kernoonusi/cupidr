@@ -5,13 +5,16 @@ import kyAuth from "$lib/api/kyAuth";
 import type { ActivationResponse } from "$lib/types";
 
 export const actions: Actions = {
-    activation: async ({ request }) => {
+    activation: async ({ cookies, request }) => {
         const data = await request.formData();
         
         const activationCode = data.get('activationCode')?.toString()!;
         
         try{
-            let activate: ActivationResponse = await kyAuth.get(`auth/activate/${activationCode}`).json();
+            let activate: ActivationResponse = await kyAuth.get(`auth/activate/${activationCode}`, {
+                headers: {
+                    token: cookies.get('refreshToken'),
+            }}).json();
             console.log(activate);
              
             user.update((value) => {

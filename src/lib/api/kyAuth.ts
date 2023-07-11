@@ -27,19 +27,19 @@ const kyAuth = ky.create({
           console.log(response);
           console.log(request);
           try {
-            const {accessToken}: TokensResponse = await kyAuth.get('auth/refresh').json();
-            console.log(accessToken);
+            const tokens: TokensResponse = await kyAuth.get('auth/refresh').json();
+            console.log(tokens.accessToken);
             
             user.update((value) => {
               if (value) {
-                return { ...value, accessToken: accessToken };
+                return { ...value, accessToken: tokens.accessToken };
               } else {
                 return value;
               }
             });
 
-            // Retry the failed request
-            request.headers.set('Authorization', `Bearer ${accessToken}`);
+            request.headers.set('Authorization', `Bearer ${tokens.accessToken}`);
+            request.headers.set('token', `${tokens.refreshToken}`);
             return ky(request);
           } catch (error: any) {
             console.log(error);
