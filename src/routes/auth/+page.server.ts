@@ -6,7 +6,7 @@ import { redirect, fail } from "@sveltejs/kit";
 import { get } from 'svelte/store';
 
 export const actions: Actions = {
-    registration: async ({ request }) => {
+    registration: async ({ cookies, request }) => {
         const data = await request.formData();
         
         const regData = {
@@ -33,6 +33,10 @@ export const actions: Actions = {
                 geolocation: regData.geolocation,
                 accessToken: response.accessToken,
             });
+            cookies.set('refreshToken', response.refreshToken, {
+                httpOnly: true,
+                maxAge: 60 * 60 * 24 * 30 * 1000,
+            })
         }catch (error: any) {
             console.log(error);
             console.log(error.status);
