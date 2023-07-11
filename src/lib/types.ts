@@ -10,3 +10,14 @@ export interface TokensResponse {
     accessToken: string;
     refreshToken: string;
 }
+export interface ActivationResponse {
+    id: number;
+    email: string;
+    name: string;
+    birthday: string;
+    gender: string;
+    lfGender: string;
+    bio: string;
+    geolocation: string;
+    isActivated: boolean;
+}

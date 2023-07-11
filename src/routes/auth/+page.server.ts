@@ -1,10 +1,12 @@
 import kyApi from "$lib/api/kyApi";
+import { user } from "$lib/stores/user";
 import type { TokensResponse } from "$lib/types";
 import type { Actions } from "./$types";
 import { redirect, fail } from "@sveltejs/kit";
+import { get } from 'svelte/store';
 
 export const actions: Actions = {
-    registration: async ({ cookies, request }) => {
+    registration: async ({ request }) => {
         const data = await request.formData();
         
         const regData = {
@@ -23,7 +25,14 @@ export const actions: Actions = {
 
         try{
             let response: TokensResponse = await kyApi.post('auth/signUp', {json: regData}).json();
-            cookies.set('accessToken', response.accessToken);
+            user.set({
+                email: regData.email,
+                name: regData.name,
+                profileImageUrl: "",
+                gender: regData.gender,
+                geolocation: regData.geolocation,
+                accessToken: response.accessToken,
+            });
         }catch (error: any) {
             console.log(error);
             console.log(error.status);

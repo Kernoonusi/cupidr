@@ -7,9 +7,9 @@
 //TODO: доделай верефикацию, сделай красоту
     const regSchemas = [
         z.object({
-            name: z.string().trim().min(1).max(64),
-            email: z.string().trim().email().min(1),
-            pass: z.string().trim().min(8).max(64),
+            name: z.string().trim().min(1, {message: "Введите имя"}).max(64),
+            email: z.string().trim().email({message: "Введите почту"}).min(1),
+            pass: z.string().trim().min(8, {message: "Пароль минимум 8 символов"}).max(64, {message: "Пароль не больше 64 символов"}),
         }),
         z.object({
             birthDay: z.string().trim().min(10).max(10),
@@ -67,8 +67,6 @@
     ];
 
     $: {
-        console.log(curStep);
-        
         regData[1].age = getAge(regData[1].birthDay!);
         if(form?.error){
             formError();
@@ -104,7 +102,7 @@
         nameInputWarn.classList.replace('block', 'hidden');
     }
 
-    function addWarn(input:HTMLInputElement, inputWarn:HTMLSpanElement, warnText:string){
+    function addWarn(input: HTMLInputElement, inputWarn: HTMLSpanElement, warnText: string){
         input.classList.add('input-error');
         inputWarn.classList.replace('hidden', 'block');
         inputWarn.innerText = warnText;
@@ -124,16 +122,17 @@
         }catch(err: unknown){
             if(err instanceof ZodError){
                 console.log(err);
+                
                 for (let i = 0; i < err.errors.length; i++) {
-                    switch(err.errors[i].message){
-                        case "String must contain at least 8 character(s)":
-                            addWarn(passInput, passInputWarn, "Пароль минимум 8 символов");
+                    switch(err.errors[i].path[0]){
+                        case "name":
+                            addWarn(nameInput, nameInputWarn, err.errors[i].message);
                             break;
-                        case "Invalid email":
-                            addWarn(emailInput, emailInputWarn, "Введите почту");
+                        case "email":
+                            addWarn(emailInput, emailInputWarn, err.errors[i].message);
                             break;
-                        case "String must contain at least 1 character(s)":
-                            addWarn(nameInput, nameInputWarn, "Введите имя");
+                        case "pass":
+                            addWarn(passInput, passInputWarn, err.errors[i].message);
                             break;
                     }
                 }

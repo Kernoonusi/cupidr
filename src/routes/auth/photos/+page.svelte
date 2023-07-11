@@ -8,7 +8,7 @@
         <form action="?/uploadPhotos" method="POST" use:enhance enctype="multipart/form-data" class="flex flex-col gap-4">
             <label class="label flex flex-col w-80 gap-2">
                 <span>Добавьте свою(-и) фотографию(-и) макс. 5</span>
-                <input class="input" type="file" name="image" multiple/>
+                <input class="input" type="file" name="file" multiple/>
             </label>
             <button type="submit" class="btn variant-filled-primary justify-self-center self-center">Зарегистрироваться</button>
         </form>
