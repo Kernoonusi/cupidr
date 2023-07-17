@@ -1,23 +1,22 @@
-import { writable } from 'svelte/store';
-import type { User } from '$lib/types';
+// import { browser } from '$app/environment';
+// import type { User } from '$lib/types';
+// import { writable } from 'svelte/store';
 
-// create a writable store with a default value of null
-const userStore = writable<User | null>(null);
+// function initializeData(): User{
+//   if(browser && localStorage.getItem('user')){
+//     return JSON.parse(localStorage.getItem('user')!);
+//   }
+//   else return {
+//     email: "",
+//     name: "",
+//     profileImageUrl: "",
+//     gender: "",
+//     geolocation: "",
+//     accessToken: "",
+//   }
+// }
 
-// export a custom store with some helper methods
-export const user = {
-  // subscribe to the store
-  subscribe: userStore.subscribe,
-  // set the user value
-  set: (value: User | null) => {
-    userStore.set(value);
-  },
-  // update the user value
-  update: (fn: (value: User | null) => User | null) => {
-    userStore.update(fn);
-  },
-  // reset the user value to null
-  reset: () => {
-    userStore.set(null);
-  },
-};
+// export const user = writable(initializeData());
+// user.subscribe(
+//   (value) => browser && (localStorage.user = JSON.stringify(value))
+// );

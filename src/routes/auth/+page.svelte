@@ -2,7 +2,6 @@
     import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import { ZodError, z } from "zod";
-    import { user } from '$lib/stores/user';
 
 //TODO: доделай верефикацию, сделай красоту
     const regSchemas = [

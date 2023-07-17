@@ -1,8 +1,8 @@
 import ky from 'ky-universal';
-import { APIURL }  from '$env/static/private';
+import { env }  from '$env/dynamic/public';
 
 const kyApi = ky.create({
     // устанавливаем базовый URL из переменной окружения
-    prefixUrl: APIURL,
+    prefixUrl: env.PUBLIC_APIURL,
 });
 export default kyApi;

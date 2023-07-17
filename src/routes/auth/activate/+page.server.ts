@@ -1,8 +1,7 @@
 import type { Actions } from "../$types";
 import { redirect } from "@sveltejs/kit";
-import { user } from '$lib/stores/user';
-import kyAuth from "$lib/api/kyAuth";
-import type { ActivationResponse } from "$lib/types";
+import type { ActivationResponse, TokensResponse } from "$lib/types";
+import kyApi from "$lib/api/kyApi";
 
 export const actions: Actions = {
     activation: async ({ cookies, request }) => {
@@ -11,19 +10,26 @@ export const actions: Actions = {
         const activationCode = data.get('activationCode')?.toString()!;
         
         try{
-            let activate: ActivationResponse = await kyAuth.get(`auth/activate/${activationCode}`, {
+            if(!cookies.get('accessToken')){
+                let tokens: TokensResponse = await kyApi.get('auth/refresh', {
+                    headers: {
+                        token: cookies.get('refreshToken'),
+                    }
+                }).json();
+                cookies.set('accessToken', tokens.accessToken, {
+                    httpOnly: true,
+                    maxAge: 60 * 15,
+                });
+                cookies.set('refreshToken', tokens.refreshToken, {
+                    httpOnly: true,
+                    maxAge: 60 * 60 * 24 * 30,
+                });
+            }
+            let activate: ActivationResponse = await kyApi.get(`auth/activate/${activationCode}`, {
                 headers: {
+                    Authorization: `Bearer ${cookies.get('accessToken')}`,
                     token: cookies.get('refreshToken'),
             }}).json();
-            console.log(activate);
-             
-            user.update((value) => {
-                if (value) {
-                  return { ...value, email: activate.email, name: activate.name, gender: activate.gender, geolocation: activate.geolocation};
-                } else {
-                  return value;
-                }
-            });
         }catch(err: unknown){
             console.log(err);
             

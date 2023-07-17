@@ -21,3 +21,12 @@ export interface ActivationResponse {
     geolocation: string;
     isActivated: boolean;
 }
+export interface PhotosResponse {
+    id: number;
+    userId: number;
+    photoUrl: string;
+    isProfile: boolean;
+}
+export interface UserResponse extends ActivationResponse {
+    userPhoto: Array<PhotosResponse>;
+}

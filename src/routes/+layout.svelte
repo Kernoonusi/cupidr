@@ -6,7 +6,7 @@
     import "../app.postcss";
 </script>
 
-<AppShell slotSidebarRight="bg-surface-500/5 w-56 p-4">
+<AppShell>
     <svelte:fragment slot="header"><Header/></svelte:fragment>
     <main>
         <slot></slot>

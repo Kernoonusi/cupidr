@@ -1,16 +1,8 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import { onMount } from 'svelte';
 
-    export let data;
-
-    onMount(() => {
-        if(!data.loggedIn){
-            goto(`/auth`);
-        }
-    });
 </script>
 
+<!-- TODO: здесь будет верстка Ильяса -->
 <main class="">
     
 </main>
