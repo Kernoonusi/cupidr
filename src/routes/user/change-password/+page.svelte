@@ -9,6 +9,7 @@
     import AvatarWithName from '$lib/components/AvatarWithName.svelte';
     import { onMount } from 'svelte';
     import PassInput from '$lib/components/PassInput.svelte';
+  import ErrorAlert from '$lib/components/ErrorAlert.svelte';
 
     let userData: UserResponse;
     let errVisible: boolean = false;
@@ -76,16 +77,5 @@
         
         <button type="submit" class="btn variant-filled-tertiary mt-6">Ок</button>
     </form>
-    {#if errVisible}
-        <aside class="alert flex-row items-center gap-4 variant-filled-error absolute top-24 w-full">
-            <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
-            <div class="alert-message">
-                <h3 class="h3">Ошибка</h3>
-                <p>{errMessage}</p>
-            </div>
-            <div class="alert-actions">
-                <button class="btn bg-white" on:click={() => errVisible = false}>Ок</button>
-            </div>
-        </aside>
-    {/if}
+    <ErrorAlert errMessage={errMessage} errVisible={errVisible}></ErrorAlert>
 {/if}

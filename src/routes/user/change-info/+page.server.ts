@@ -21,9 +21,9 @@ export const actions: Actions = {
         const data = await request.formData();
         
         const regData = {
-            "email": data.get('user-email')?.toString()!,
+            // "email": data.get('user-email')?.toString()!,
             "name": data.get('user-name')?.toString()!,
-            "birthday": new Date(data.get('user-birthday')?.toString()!),
+            "birthday": new Date(data.get('user-birthday')?.toString()!).toISOString(),
             "gender": data.get('user-sex')?.toString()!,
             "lfGender": data.get('user-prefer')?.toString()!,
             "bio": "",

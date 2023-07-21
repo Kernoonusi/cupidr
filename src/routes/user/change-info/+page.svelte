@@ -11,6 +11,7 @@
     import EmailInput from '$lib/components/EmailInput.svelte';
     import DateInput from '$lib/components/DateInput.svelte';
     import { onMount } from 'svelte';
+  import ErrorAlert from '$lib/components/ErrorAlert.svelte';
 
     let userData: UserResponse;
     let errVisible: boolean = false;
@@ -85,7 +86,10 @@
     <form action="?/updateUser" method="POST" class="flex flex-col gap-4 mt-6">
         <h2 class="h2 text-center">Личные данные</h2>
         <TextInput label={'Имя'} name={'user-name'} value={userData.name} autocomplete={'name'}></TextInput>
-        <EmailInput label={'Почта'} name={'user-email'} value={userData.email} autocomplete={'email'}></EmailInput>
+        <label class="label flex flex-col w-full gap-2">
+            <span>Почта</span>
+            <input type="email" class="input p-2" value="{userData.email}" disabled>
+        </label>
         <DateInput label={'Дата рождения'} name={'user-birthday'} value={userData.birthday.slice(0, 10)} autocomplete={'birthday'}></DateInput>
         <label class="label flex flex-col w-full gap-2">
             <span>Ваш пол</span>
@@ -111,16 +115,5 @@
         </label>
         <button type="submit" class="btn variant-filled-tertiary mt-6">Ок</button>
     </form>
-    {#if errVisible}
-        <aside class="alert flex-row items-center gap-4 variant-filled-error absolute top-24 w-full">
-            <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
-            <div class="alert-message">
-                <h3 class="h3">Ошибка</h3>
-                <p>{errMessage}</p>
-            </div>
-            <div class="alert-actions">
-                <button class="btn bg-white" on:click={() => errVisible = false}>Ок</button>
-            </div>
-        </aside>
-    {/if}
+    <ErrorAlert errMessage={errMessage} errVisible={errVisible}></ErrorAlert>
 {/if}

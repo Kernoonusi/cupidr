@@ -10,6 +10,7 @@
     import { onMount } from 'svelte';
     import { enhance } from '$app/forms';
     import { scale } from 'svelte/transition';
+  import ErrorAlert from '$lib/components/ErrorAlert.svelte';
 
     let userData: UserResponse;
     let errVisible: boolean = false;
@@ -112,18 +113,7 @@
             </form>
         <section>
     </div>
-    {#if errVisible}
-        <aside class="alert flex-row items-center gap-4 variant-filled-error absolute top-24 w-full">
-            <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
-            <div class="alert-message">
-                <h3 class="h3">Ошибка</h3>
-                <p>{errMessage}</p>
-            </div>
-            <div class="alert-actions">
-                <button class="btn bg-white" on:click={() => errVisible = false}>Ок</button>
-            </div>
-        </aside>
-    {/if}
+    <ErrorAlert errMessage={errMessage} errVisible={errVisible}></ErrorAlert>
 {/if}
 
 <style lang="scss">
