@@ -19,10 +19,12 @@ export const actions: Actions = {
                 cookies.set('accessToken', tokens.accessToken, {
                     httpOnly: true,
                     maxAge: 60 * 15,
+                    path: '/',
                 });
                 cookies.set('refreshToken', tokens.refreshToken, {
                     httpOnly: true,
                     maxAge: 60 * 60 * 24 * 30,
+                    path: '/',
                 });
             }
             for (let [key, value] of data.entries()) {
@@ -36,7 +38,6 @@ export const actions: Actions = {
                     },
                     body: photo,
                 }).json();
-                console.log(env.PUBLIC_APIURL + response.photoUrl);
             }
         }catch(err: unknown){
             if(err instanceof HTTPError){

@@ -15,4 +15,11 @@
         </label>
         <button type="submit" class="btn variant-filled-primary">Войти</button>
     </form>
+    <a href="/auth" class="have-user">Нет аккаунта?</a>
 </main>
+
+<style lang="scss">
+    .have-user:hover{
+        text-decoration: underline;
+    }
+</style>

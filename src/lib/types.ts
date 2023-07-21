@@ -28,5 +28,5 @@ export interface PhotosResponse {
     isProfile: boolean;
 }
 export interface UserResponse extends ActivationResponse {
-    userPhoto: Array<PhotosResponse>;
+    UserPhoto: Array<PhotosResponse>;
 }

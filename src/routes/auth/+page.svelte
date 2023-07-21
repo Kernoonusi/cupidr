@@ -1,28 +1,32 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
+    import DateInput from "$lib/components/DateInput.svelte";
+    import TextInput from "$lib/components/TextInput.svelte";
+    import EmailInput from '$lib/components/EmailInput.svelte';
     import { ZodError, z } from "zod";
+  import PassInput from "$lib/components/PassInput.svelte";
 
 //TODO: доделай верефикацию, сделай красоту
     const regSchemas = [
         z.object({
             name: z.string().trim().min(1, {message: "Введите имя"}).max(64),
-            email: z.string().trim().email({message: "Введите почту"}).min(1),
+            email: z.string().trim().min(1, {message: "Введите почту"}).email({message: "Введите почту"}),
             pass: z.string().trim().min(8, {message: "Пароль минимум 8 символов"}).max(64, {message: "Пароль не больше 64 символов"}),
         }),
         z.object({
-            birthDay: z.string().trim().min(10).max(10),
-            age: z.number().min(16).max(99),
+            age: z.number().min(16, {message: "Вам мало лет, сайт 16+"}).max(99),
+            birthDay: z.string().trim().min(10, {message: "Введите дату рождения"}).max(10),
         }),
         z.object({
             gender: z.enum(['female', 'male']),
             lfGender: z.enum(['female', 'male', 'both']),
         }),
         z.object({
-            geolocation: z.string().trim().min(1).max(64),
+            geolocation: z.string().trim().min(1, {message: "Введите ваше местоположение"}).max(64),
         }),
         z.object({
-            bio: z.string().trim().max(512),
+            bio: z.string().trim().max(1024, {message: "Максимум 1024 символов"}),
         }),
     ];
 
@@ -30,12 +34,14 @@
     let formDom:HTMLFormElement;
     let backButton: HTMLButtonElement;
     let regButton: HTMLButtonElement;
-    let emailInput: HTMLInputElement;
-    let passInput: HTMLInputElement;
-    let nameInput: HTMLInputElement;
-    let emailInputWarn: HTMLSpanElement;
-    let passInputWarn: HTMLSpanElement;
-    let nameInputWarn: HTMLSpanElement;
+    let emailInputWarn: string;
+    let passInputWarn: string;
+    let nameInputWarn: string;
+    let birthdayInputWarn: string;
+    let genderWarn: string;
+    let lfGenderWarn: string;
+    let geoInputWarn: string;
+    let bioInputWarn: string;
     let step1: HTMLDivElement;
     let step2: HTMLDivElement;
     let step3: HTMLDivElement;
@@ -76,7 +82,7 @@
         switch(form!.error){
             case "Пользователь с таким email уже существует":
                 goto(`#step1`);
-                addWarn(emailInput, emailInputWarn, "Эта почта уже зарегистрирована");
+                emailInputWarn = "Эта почта уже зарегистрирована";
                 break;
         }
     }
@@ -92,21 +98,6 @@
         return age;
     }
 
-    function initializeFirstStep(){
-        passInput.classList.remove('input-error');
-        passInputWarn.classList.replace('block', 'hidden');
-        emailInput.classList.remove('input-error');
-        emailInputWarn.classList.replace('block', 'hidden');
-        nameInput.classList.remove('input-error');
-        nameInputWarn.classList.replace('block', 'hidden');
-    }
-
-    function addWarn(input: HTMLInputElement, inputWarn: HTMLSpanElement, warnText: string){
-        input.classList.add('input-error');
-        inputWarn.classList.replace('hidden', 'block');
-        inputWarn.innerText = warnText;
-    }
-
     function nextStep(){
         try{
             regSchemas[curStep].parse(regData[curStep]);
@@ -115,7 +106,7 @@
             if(curStep <= 4){
                 goto(`#step${curStep + 2}`);
                 if(curStep == 0)
-                    initializeFirstStep();
+                    [passInputWarn, emailInputWarn, nameInputWarn] = ["", "", ""]
             }
             curStep++;
         }catch(err: unknown){
@@ -125,13 +116,31 @@
                 for (let i = 0; i < err.errors.length; i++) {
                     switch(err.errors[i].path[0]){
                         case "name":
-                            addWarn(nameInput, nameInputWarn, err.errors[i].message);
+                            nameInputWarn = err.errors[i].message;
                             break;
                         case "email":
-                            addWarn(emailInput, emailInputWarn, err.errors[i].message);
+                            emailInputWarn = err.errors[i].message;
                             break;
                         case "pass":
-                            addWarn(passInput, passInputWarn, err.errors[i].message);
+                            passInputWarn = err.errors[i].message;
+                            break;
+                        case "age":
+                            birthdayInputWarn = err.errors[i].message;
+                            break;
+                        case "birthDay":
+                            birthdayInputWarn = err.errors[i].message;
+                            break;
+                        case "gender":
+                            genderWarn = "Укажите ваш пол";
+                            break;
+                        case "lfGender":
+                            lfGenderWarn = "Укажите пол человека которого вы ищете";
+                            break;
+                        case "geolocation":
+                            geoInputWarn = err.errors[i].message;
+                            break;
+                        case "bio":
+                            bioInputWarn = err.errors[i].message;
                             break;
                     }
                 }
@@ -145,30 +154,14 @@
         <h1 class="h1 text-center text-2xl">Регистрация</h1>
         <form action="?/registration" method="POST" bind:this={formDom} use:enhance class="relative overflow-hidden"> 
             <div class="flex flex-col p-4 items-center transition-all snap-y overflow-y-scroll form-div scroll-smooth">
-                <section class="flex flex-col gap-2" id="step1">
-                    <label class="label flex flex-col w-80 gap-2 snap-start">
-                        <span>Имя</span>
-                        <input type="text" class="input p-2" name="user-name" bind:this={nameInput} bind:value={regData[0].name} autocomplete="name" placeholder="Иван" required>
-                        <span class="text-red-600 hidden warn" bind:this={nameInputWarn}></span>
-                    </label>
-                    <label class="label flex flex-col w-80 gap-2">
-                        <span>Почта</span>
-                        <input type="email" class="input p-2" name="user-email" bind:this={emailInput} bind:value={regData[0].email} autocomplete="email" placeholder="example@mail.com" required>
-                        <span class="text-red-600 hidden warn" bind:this={emailInputWarn}></span>
-                    </label>
-                    <label class="label flex flex-col w-80 gap-2">
-                        <span>Пароль</span>
-                        <input type="password" class="input p-2" name="user-pass" bind:this={passInput} bind:value={regData[0].pass} autocomplete="new-password" placeholder="Мин. 8 символов" required>
-                        <span class="text-red-600 hidden warn" bind:this={passInputWarn}></span>
-                    </label>
+                <section class="flex flex-col gap-4 w-80 snap-start" id="step1">
+                    <TextInput label={'Имя'} name={'user-name'} bind:warnText={nameInputWarn} bind:value={regData[0].name} autocomplete={'name'} placeholder="Иван"></TextInput>
+                    <EmailInput label={'Почта'} name={'user-email'} bind:warnText={emailInputWarn} bind:value={regData[0].email} autocomplete={'email'} placeholder="example@mail.com"></EmailInput>
+                    <PassInput label={'Пароль'} name={'user-password'} bind:warnText={passInputWarn} bind:value={regData[0].pass} autocomplete={"new-password"} placeholder="Мин. 8 символов"></PassInput>
                 </section>
 
-                <section class="flex flex-col snap-start" id="step2">
-                    <label class="label flex flex-col w-80 gap-2">
-                        <span>Дата рождения</span>
-                        <input type="date" class="input p-2" name="user-birthday" bind:value={regData[1].birthDay} required>
-                        <!-- <span class="text-red-600 hidden warn"></span> -->
-                    </label>
+                <section class="flex flex-col w-80 snap-start" id="step2">
+                    <DateInput label={'Дата рождения'} name={'user-birthday'} bind:warnText={birthdayInputWarn} bind:value={regData[1].birthDay} autocomplete={'birthday'}></DateInput>
                 </section>
                 
                 <section class="flex flex-col gap-4 snap-start" id="step3">
@@ -176,62 +169,48 @@
                     <div class="flex flex-col items-center justify-center gap-4">
                         <label class="flex justify-center items-center">
                             <input type="radio" class="radio hidden" value="female" bind:group={regData[2].gender} name="user-sex" required>
-                            {#if regData[2].gender == 'female'}
-                                <p class="btn w-48 py-5 variant-filled-primary">Девушка</p>
-                            {:else}
-                                <p class="btn w-48 py-5 variant-filled-surface">Девушка</p>
-                            {/if}
+                            <p class="btn w-48 py-5 {regData[2].gender == 'female' ? 'variant-filled-primary' : 'variant-filled-surface'}">Девушка</p>
                         </label>
                         <label class="flex justify-center items-center">
                             <input type="radio" class="radio hidden" value="male" bind:group={regData[2].gender} name="user-sex" required>
-                            {#if regData[2].gender == 'male'}
-                                <p class="btn w-48 py-5 variant-filled-primary">Мужик</p>
-                            {:else}
-                                <p class="btn w-48 py-5 variant-filled-surface">Мужик</p>
-                            {/if}
+                            <p class="btn w-48 py-5 {regData[2].gender == 'male' ? 'variant-filled-primary' : 'variant-filled-surface'}">Мужик</p>
                         </label>      
                     </div>
+                    {#if genderWarn}
+                        <span class="text-red-600 warn">{genderWarn}</span>
+                    {/if}
                     <span class="text-2xl text-center">Я ищу</span>
                     <div class="flex flex-col items-center justify-center gap-4">
                         <label class="flex justify-center items-center">
                             <input type="radio" class="radio hidden" value="female" bind:group={regData[2].lfGender} name="user-prefer" required>
-                            {#if regData[2].lfGender == 'female'}
-                                <p class="btn w-48 py-5 variant-filled-primary">Девушек</p>
-                            {:else}
-                                <p class="btn w-48 py-5 variant-filled-surface">Девушек</p>
-                            {/if}    
+                            <p class="btn w-48 py-5 {regData[2].lfGender == 'female' ? 'variant-filled-primary' : 'variant-filled-surface'}">Девушек</p>
                         </label>
                         <label class="flex justify-center items-center">
                             <input type="radio" class="radio hidden" value="male" bind:group={regData[2].lfGender} name="user-prefer" required>
-                            {#if regData[2].lfGender == 'male'}
-                                <p class="btn w-48 py-5 variant-filled-primary">Мужиков</p>
-                            {:else}
-                                <p class="btn w-48 py-5 variant-filled-surface">Мужиков</p>
-                            {/if}
+                            <p class="btn w-48 py-5 {regData[2].lfGender == 'male' ? 'variant-filled-primary' : 'variant-filled-surface'}">Мужиков</p>
                         </label>          
                         <label class="flex justify-center items-center">
                             <input type="radio" class="radio hidden" value="both" bind:group={regData[2].lfGender} name="user-prefer" required>
-                            {#if regData[2].lfGender == 'both'}
-                                <p class="btn w-48 py-5 variant-filled-primary">Всех</p>
-                            {:else}
-                                <p class="btn w-48 py-5 variant-filled-surface">Всех</p>
-                            {/if}
+                            <p class="btn w-48 py-5 {regData[2].lfGender == 'both' ? 'variant-filled-primary' : 'variant-filled-surface'}">Всех</p>
                         </label>
                     </div>
+                    {#if lfGenderWarn}
+                        <span class="text-red-600 warn">{lfGenderWarn}</span>
+                    {/if}
                 </section>
 
-                <section class="flex flex-col snap-start" id="step4">
-                    <label class="label flex flex-col w-80 gap-2">
-                        <span>Ваше местоположение</span>
-                        <input class="input p-2" type="text" placeholder="Ваш город" name="user-geo" bind:value={regData[3].geolocation} autocomplete="address-level1" required/>
-                    </label>
+                <section class="flex flex-col w-80 snap-start" id="step4">
+                    <TextInput label={'Ваше местоположение'} name={'user-geo'} bind:warnText={geoInputWarn} bind:value={regData[3].geolocation} autocomplete={'address-level1'} placeholder="Ваш город"></TextInput>
                 </section>
 
                 <section class="flex flex-col snap-start" id="step5">
                     <label class="label flex flex-col w-80 gap-2">
                         <span>Расскажите о себе (необязательно)</span>
                         <textarea class="textarea p-2" rows="4" placeholder="О себе" name="user-bio" bind:value={regData[4].bio}/>
-                    </label>                    
+                    </label>
+                    {#if bioInputWarn}
+                        <span class="text-red-600 warn">{bioInputWarn}</span>
+                    {/if}                   
                 </section>
                 <br>
             </div>

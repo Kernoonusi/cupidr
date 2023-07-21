@@ -1,5 +1,5 @@
 import type { Actions } from "../$types";
-import { redirect } from "@sveltejs/kit";
+import { redirect, fail } from "@sveltejs/kit";
 import type { ActivationResponse, TokensResponse } from "$lib/types";
 import kyApi from "$lib/api/kyApi";
 
@@ -19,10 +19,12 @@ export const actions: Actions = {
                 cookies.set('accessToken', tokens.accessToken, {
                     httpOnly: true,
                     maxAge: 60 * 15,
+                    path: '/',
                 });
                 cookies.set('refreshToken', tokens.refreshToken, {
                     httpOnly: true,
                     maxAge: 60 * 60 * 24 * 30,
+                    path: '/',
                 });
             }
             let activate: ActivationResponse = await kyApi.get(`auth/activate/${activationCode}`, {
@@ -30,10 +32,14 @@ export const actions: Actions = {
                     Authorization: `Bearer ${cookies.get('accessToken')}`,
                     token: cookies.get('refreshToken'),
             }}).json();
-        }catch(err: unknown){
-            console.log(err);
-            
-            return;
+        }catch (error: any) {
+            console.log(error);
+            console.log(error.status);
+
+            const message = await error.response.clone().json().then((obj: any) => JSON.stringify(obj));
+            return fail(422, {
+              error: await JSON.parse(message).message,
+            });
         }
 
         throw redirect(301, `/person/50`);

@@ -1,17 +1,29 @@
-import kyApi from "$lib/api/kyApi";
-import type { TokensResponse } from "$lib/types";
-import type { Actions } from "./$types";
-import { redirect, fail } from "@sveltejs/kit";
+import { redirect, type Actions, fail } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+import kyApi from '$lib/api/kyApi';
+import type { TokensResponse, UserResponse } from '$lib/types';
+
+export const load: PageServerLoad = async ({ parent, cookies }) => {
+    if(cookies.get('refreshToken')){
+        try{
+            return await parent();
+        }catch(err: unknown){
+            console.log(err);
+        }
+    }
+    else{
+        throw redirect(301, '/auth');
+    }
+}
 
 export const actions: Actions = {
-    registration: async ({ cookies, request }) => {
+    updateUser: async ({ cookies, request}) => {
         const data = await request.formData();
         
         const regData = {
             "email": data.get('user-email')?.toString()!,
-            "password": data.get('user-password')?.toString()!,
             "name": data.get('user-name')?.toString()!,
-            "birthday": data.get('user-birthday')?.toString()!,
+            "birthday": new Date(data.get('user-birthday')?.toString()!),
             "gender": data.get('user-sex')?.toString()!,
             "lfGender": data.get('user-prefer')?.toString()!,
             "bio": "",
@@ -22,17 +34,12 @@ export const actions: Actions = {
             regData.bio = data.get('user-bio')?.toString()!;
 
         try{
-            let response: TokensResponse = await kyApi.post('auth/signUp', {json: regData}).json();
-            cookies.set('accessToken', response.accessToken, {
-                httpOnly: true,
-                maxAge: 60 * 15,
-                path: '/',
-            });
-            cookies.set('refreshToken', response.refreshToken, {
-                httpOnly: true,
-                maxAge: 60 * 60 * 24 * 30,
-                path: '/',
-            });
+            await kyApi.patch('users/me/update', {
+                json: regData,
+                headers: {
+                    Authorization: `Bearer ${cookies.get('accessToken')}`,
+                }
+            }).json();
         }catch (error: any) {
             console.log(error);
             console.log(error.status);
@@ -42,6 +49,5 @@ export const actions: Actions = {
               error: await JSON.parse(message).message,
             });
         }
-        throw redirect(301, '/auth/photos');
     }
 };
