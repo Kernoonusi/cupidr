@@ -1,128 +1,187 @@
 <script lang="ts">
-    import { invalidate } from '$app/navigation';
-    import kyApi from '$lib/api/kyApi';
-    import type { UserResponse } from '$lib/types';
-    import { createQuery } from '@tanstack/svelte-query';
-    import type { PageData } from './$types';
-    import { PUBLIC_APIURL } from '$env/static/public';
-    import { FileDropzone, ProgressRadial} from '@skeletonlabs/skeleton';
-    import AvatarWithName from '$lib/components/AvatarWithName.svelte';
-    import { onMount } from 'svelte';
-    import { enhance } from '$app/forms';
-    import { scale } from 'svelte/transition';
-  import ErrorAlert from '$lib/components/ErrorAlert.svelte';
+  import { invalidate } from "$app/navigation";
+  import kyApi from "$lib/api/kyApi";
+  import type { UserResponse } from "$lib/types";
+  import { createQuery } from "@tanstack/svelte-query";
+  import type { PageData } from "./$types";
+  import { PUBLIC_APIURL } from "$env/static/public";
+  import {
+    FileDropzone,
+    ProgressRadial,
+    type ToastSettings,
+  } from "@skeletonlabs/skeleton";
+  import { onMount } from "svelte";
+  import { enhance } from "$app/forms";
+  import { scale } from "svelte/transition";
+  import { toastStore } from "@skeletonlabs/skeleton";
+  import kyApiSimple from "$lib/api/kyApiSimple";
 
-    let userData: UserResponse;
-    let errVisible: boolean = false;
-    let errMessage: string;
-    let photos: HTMLDivElement[] = [];
-    let formElem: HTMLFormElement;
-    export let data: PageData;
-    export let form;
+  let userData: UserResponse;
+  let photos: HTMLDivElement[] = [];
+  let formElem: HTMLFormElement;
+  export let data: PageData;
+  export let form;
 
-    async function authorization() {
-        try{
-            let user: UserResponse = await kyApi.get('users/me', {
-                headers: {
-                    Authorization: `Bearer ${data.accessToken}`,
-                    token: data.refreshToken,
-                },
-                hooks: {
-                    afterResponse: [
-                        async (_request, _options, response) => {
-                            if (response.status === 401){                           
-                                invalidate('/user/change-photos');
-                            }
-                        }
-                    ]
+  async function authorization() {
+    try {
+      let user: UserResponse = await kyApiSimple
+        .get("users/me", {
+          headers: {
+            Authorization: `Bearer ${data.accessToken}`,
+            token: data.refreshToken,
+          },
+          hooks: {
+            afterResponse: [
+              async (_request, _options, response) => {
+                if (response.status === 401) {
+                  invalidate("/user/change-photos");
                 }
-            }).json();
-            return user;
-        }catch(err: unknown){
-            console.log(err);
-        }
+              },
+            ],
+          },
+        })
+        .json();
+      return user;
+    } catch (err: unknown) {
+      console.log(err);
     }
+  }
 
-    function deletePhoto(index: number){
-        userData.UserPhoto.splice(index, 1);
-    }
-    
-    function makePhotoProfile(index: number){
-        userData.UserPhoto.forEach((element, index) => {
-            if(element.isProfile){
-                userData.UserPhoto[index].isProfile = false;
-            }
-        });
-        userData.UserPhoto[index].isProfile = true;
-    }
+  function deletePhoto(index: number) {
+    userData.UserPhoto.splice(index, 1);
+  }
 
-    const user = createQuery({
-        queryKey: ['user'],
-        queryFn: () => authorization(),
-        initialData: data.user,
+  function makePhotoProfile(index: number) {
+    userData.UserPhoto.forEach((element, index) => {
+      if (element.isProfile) {
+        userData.UserPhoto[index].isProfile = false;
+      }
     });
+    userData.UserPhoto[index].isProfile = true;
+  }
 
-    $: {
-        if($user.data){
-            userData = $user.data;     
-        }
-        else if(data.user){
-            userData = data.user;
-        }
+  const user = createQuery({
+    queryKey: ["user"],
+    queryFn: () => authorization(),
+    initialData: data.user,
+  });
+
+  $: {
+    if ($user.data) {
+      userData = $user.data;
+    } else if (data.user) {
+      userData = data.user;
     }
+  }
 
-    onMount(() => {
-        if(form?.error && !errVisible){
-            errVisible = !errVisible;
-            errMessage = form.error;
-        }
-    });
+  $: {
+    if (form?.error) {
+      const t: ToastSettings = {
+        message: form.error,
+        background: "variant-filled-error",
+        timeout: 10000,
+      };
+      toastStore.trigger(t);
+    }
+  }
 </script>
 
 {#if $user.isLoading}
-    <div class="flex justify-center mt-64">
-        <ProgressRadial />
-    </div>        
+  <div class="flex justify-center mt-64">
+    <ProgressRadial />
+  </div>
 {:else if $user.isError}
-    <p>Error: {$user.error.message}</p>
-{:else if ($user.isSuccess && userData)}
-    <div>
-        <h2 class="h2 mt-6 text-center">Ваши фото</h2>
-        <section class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
-            {#each userData.UserPhoto as photo, i}
-                {#if userData.UserPhoto[i]}
-                    <div out:scale|local bind:this={photos[i]} class="relative">
-                        <form action="?/deletePhoto" method="post" use:enhance>
-                            <input type="text" name="photoId" class="hidden" value="{photo.id}">
-                            <button type="submit" class="btn-icon btn-icon-sm variant-filled absolute top-1 left-1" on:click={() => deletePhoto(i)}><i class="fa-solid fa-xmark fa-lg"></i></button>
-                        </form>
-                        <form action="?/makePhotoProfile" method="post" use:enhance on:submit|preventDefault={() => makePhotoProfile(i)}>
-                            <input type="text" name="photoId1" class="hidden" value="{photo.id}" >
-                            <button type="submit" class="btn-icon btn-icon-sm {userData.UserPhoto[i].isProfile ? 'variant-filled-primary' : 'variant-filled'} absolute top-1 right-1" ><i class="fa-solid fa-star fa-lg"></i></button>
-                        </form>
-                        <img class="h-auto rounded-lg" src={PUBLIC_APIURL + photo.photoUrl} alt="profile {photo.id}">
-                    </div>
-                {/if}
-            {/each}
-            <form action="?/uploadPhoto" bind:this={formElem} method="post" class="w-full" enctype="multipart/form-data">
-                <FileDropzone name="file" multiple rounded="rounded-2xl" on:change={() => formElem.submit()}>
-                    <svelte:fragment slot="lead"><i class="fa-solid fa-file-image fa-2xl"></i></svelte:fragment>
-                    <svelte:fragment slot="message">Загрузите ваше фото</svelte:fragment>
-                    <svelte:fragment slot="meta">PNG, JPG, JPEG</svelte:fragment>
-                </FileDropzone>
+  <p>Error: {$user.error.message}</p>
+{:else if $user.isSuccess && userData}
+  <div>
+    <h2 class="h2 mt-6 text-center">Ваши фото</h2>
+    <section class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+      {#each userData.UserPhoto as photo, i}
+        {#if userData.UserPhoto[i]}
+          <div
+            out:scale|local
+            bind:this={photos[i]}
+            class="relative h-auto max-w-full bg-surface-600 flex justify-center"
+          >
+            <form action="?/deletePhoto" method="post" use:enhance>
+              <input
+                type="text"
+                name="photoId"
+                class="hidden"
+                value={photo.id}
+              />
+              <button
+                type="submit"
+                class="btn-icon btn-icon-sm variant-filled absolute top-1 left-1"
+                on:click={() => deletePhoto(i)}
+                ><i class="fa-solid fa-xmark fa-lg" /></button
+              >
             </form>
-        <section>
-    </div>
-    <ErrorAlert errMessage={errMessage} errVisible={errVisible}></ErrorAlert>
+            <form
+              action="?/makePhotoProfile"
+              method="post"
+              use:enhance
+              on:submit|preventDefault={() => makePhotoProfile(i)}
+            >
+              <input
+                type="text"
+                name="photoId1"
+                class="hidden"
+                value={photo.id}
+              />
+              <button
+                type="submit"
+                class="btn-icon btn-icon-sm {userData.UserPhoto[i].isProfile
+                  ? 'variant-filled-primary'
+                  : 'variant-filled'} absolute top-1 right-1"
+                ><i class="fa-solid fa-star fa-lg" /></button
+              >
+            </form>
+            <img
+              class="h-40 w-full object-cover rounded-lg bg-surface-600"
+              src={PUBLIC_APIURL + photo.photoUrl}
+              alt="profile {photo.id}"
+            />
+          </div>
+        {/if}
+      {/each}
+      {#if userData.UserPhoto.length != 5}
+        <form
+          action="?/uploadPhoto"
+          bind:this={formElem}
+          method="post"
+          class="w-full"
+          enctype="multipart/form-data"
+        >
+          <FileDropzone
+            name="file"
+            multiple
+            rounded="rounded-2xl"
+            on:change={() => formElem.submit()}
+          >
+            <svelte:fragment slot="lead"
+              ><i class="fa-solid fa-file-image fa-2xl" /></svelte:fragment
+            >
+            <svelte:fragment slot="message">Загрузите ваше фото</svelte:fragment
+            >
+            <svelte:fragment slot="meta">PNG, JPG, JPEG</svelte:fragment>
+          </FileDropzone>
+        </form>
+      {:else}
+        <div class="card p-4" />
+      {/if}
+      <section />
+    </section>
+  </div>
 {/if}
 
 <style lang="scss">
-    .grid-cols-2{
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 768px) {
+    .md\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    @media (min-width: 768px) {
-        .md\:grid-cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-    }
+  }
 </style>

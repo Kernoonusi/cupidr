@@ -1,7 +1,7 @@
 <script lang="ts">
     import '@skeletonlabs/skeleton/themes/theme-crimson.css';
     import '@skeletonlabs/skeleton/styles/skeleton.css';
-    import { AppShell } from '@skeletonlabs/skeleton';
+    import { AppShell, Toast } from '@skeletonlabs/skeleton';
     import Header from '$lib/components/Header.svelte';
     import "../app.postcss";
     import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query'
@@ -25,6 +25,7 @@
             <slot></slot>
         </main>
     </AppShell>
+    <Toast />
 </QueryClientProvider>
 
 <style>

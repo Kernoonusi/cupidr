@@ -2,6 +2,7 @@ import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import kyApi from '$lib/api/kyApi';
 import type { TokensResponse, UserResponse } from '$lib/types';
+import kyApiSimple from '$lib/api/kyApiSimple';
 
 export const load: PageServerLoad = async ({ parent, cookies }) => {
     if(cookies.get('refreshToken')){
@@ -34,7 +35,7 @@ export const actions: Actions = {
             regData.bio = data.get('user-bio')?.toString()!;
 
         try{
-            await kyApi.patch('users/me/update', {
+            await kyApi(cookies).patch('users/me/update', {
                 json: regData,
                 headers: {
                     Authorization: `Bearer ${cookies.get('accessToken')}`,

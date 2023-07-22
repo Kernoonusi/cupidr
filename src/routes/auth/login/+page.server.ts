@@ -2,6 +2,7 @@ import type { Actions } from "./$types";
 import { redirect } from "@sveltejs/kit";
 import kyApi from "$lib/api/kyApi";
 import type { TokensResponse } from "$lib/types";
+import kyApiSimple from "$lib/api/kyApiSimple";
 
 export const actions: Actions = {
     login: async ({ cookies, request }) => {
@@ -12,7 +13,7 @@ export const actions: Actions = {
             "password": data.get('user-pass')?.toString()!,
         };
 
-        let response: TokensResponse = await kyApi.post('auth/signIn', {json: logData}).json();
+        let response: TokensResponse = await kyApiSimple.post('auth/signIn', {json: logData}).json();
 
         cookies.set('accessToken', response.accessToken, {
             httpOnly: true,
