@@ -1,9 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-
 </script>
 
-<!-- TODO: здесь будет верстка Ильяса -->
 <main class="w-full bg-[#E3EBE4] h-full relative overflow-hidden pb-[100px]">
   <div
     class="w-[2300px] h-[2300px] rounded-full border-yellow-400 bg-transparent mt-8 border-solid border-2 absolute left-[-200px] z-[0]"

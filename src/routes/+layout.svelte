@@ -6,6 +6,16 @@
     import "../app.postcss";
     import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query'
     import { browser } from '$app/environment';
+    import { onMount } from 'svelte';
+
+    export let data;
+    let isLoggedIn: boolean = false;
+
+    onMount(async () => {
+        if(data.isLoggedIn){
+            isLoggedIn = data.isLoggedIn;
+        }
+    });
 
     const queryClient = new QueryClient({
         defaultOptions: {
@@ -19,7 +29,7 @@
 <QueryClientProvider client={queryClient}>
     <AppShell>
         <svelte:fragment slot="header">
-            <Header/>
+            <Header isLoggedIn={isLoggedIn}/>
         </svelte:fragment>
         <main>
             <slot></slot>

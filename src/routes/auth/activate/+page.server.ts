@@ -51,6 +51,6 @@ export const actions: Actions = {
       });
     }
 
-    throw redirect(301, `/person/50`);
+    throw redirect(301, `/1`);
   },
 };
