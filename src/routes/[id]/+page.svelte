@@ -1,24 +1,21 @@
 <script lang="ts">
   import type { PageData } from "./$types";
-  import { goto, invalidate } from "$app/navigation";
+  import { goto, invalidateAll } from "$app/navigation";
   import { PUBLIC_APIURL } from "$env/static/public";
   import kyApiSimple from "$lib/api/kyApiSimple";
   import type { UserResponse } from "$lib/types";
   import { ProgressRadial } from "@skeletonlabs/skeleton";
-  import { createQuery } from "@tanstack/svelte-query";
-  import type { LayoutData } from "../$types";
+  import { createQuery} from "@tanstack/svelte-query";
+  import { fade } from "svelte/transition";
+  import { onMount } from "svelte";
 
   let isOpen = false;
   let userData: UserResponse;
+  let infoElem: HTMLElement;
+  let infoBioElem: HTMLElement;
+  let isEducation1: boolean = false;
   let avatarSrc: string;
   export let data: PageData;
-
-  function like() {
-    goto(`/${Math.ceil(Math.random() * 100)}`);
-  }
-  function dislike() {
-    goto(`/${Math.ceil(Math.random() * 100)}`);
-  }
 
   async function authorization() {
     try {
@@ -32,7 +29,7 @@
             afterResponse: [
               async (_request, _options, response) => {
                 if (response.status === 401) {
-                  invalidate("/user");
+                  throw Error('401 not authorised maybe');
                 }
               },
             ],
@@ -41,18 +38,8 @@
         .json();
     } catch (err: unknown) {
       console.log(err);
-      invalidate("/user");
+      invalidateAll();
     }
-  }
-
-  function avatarSrcSearch() {
-    let photoUrl;
-    userData.UserPhoto.map((element) => {
-      if (element.isProfile) {
-        photoUrl = element.photoUrl;
-      }
-    });
-    avatarSrc = PUBLIC_APIURL + photoUrl;
   }
 
   const user = createQuery({
@@ -91,22 +78,65 @@
     elemCarousel.scroll(x, 0);
   }
 
-  function showInfo(){
-    
+  function showInfo() {
+    if(!isOpen){
+      let height = infoElem.offsetHeight;
+      infoElem.animate([
+        {
+          height: `${height}px`,
+        },
+        {
+          height: `${height * 4}px`,
+        }
+      ],
+      {
+        duration: 1000,
+        fill: 'forwards'
+      }
+      )
+      infoBioElem.animate([
+        {
+          display: 'none',
+          opacity: '0',
+        },
+        {
+          display: 'block',
+        },
+        {
+          display: 'block',
+          opacity: '1',
+        }
+      ],
+      {
+        duration: 1000,
+        fill: 'forwards'
+      }
+      )
+      isOpen = true;
+    }
+    else{
+      // let height = infoElem.offsetHeight;
+      infoElem.getAnimations().forEach(animation => {
+        animation.reverse();
+      });
+      infoBioElem.getAnimations().forEach(animation => {
+        animation.reverse();
+      });
+      isOpen = false;
+    }
   }
 
   $: {
-    if ($user.data && !$user.error) {
+    if ($user.data && !$user.error && !isEducation1) {   
       userData = $user.data;
     } else if (data.user) {
       userData = data.user;
     }
   }
-  $: {
-    if (userData) {
-      avatarSrcSearch();
-    }
-  }
+
+  onMount(() => {
+    isEducation1 = data.isEducation;
+  });
 </script>
 
 {#if $user.isLoading}
@@ -116,28 +146,78 @@
 {:else if $user.isError}
   <p>Error: {$user.error.message}</p>
 {:else if $user.isSuccess && userData}
-  <div class="relative card rounded-3xl mt-6 w-5/6 m-auto">
-    <div
-      bind:this={elemCarousel}
-      class="snap-x snap-mandatory scroll-smooth hide-scrollbar h-[70vh] flex overflow-x-auto"
-    >
-      {#each userData.UserPhoto as photo}
+  <div
+    bind:this={elemCarousel}
+    class="snap-x snap-mandatory rounded-3xl scroll-smooth hide-scrollbar max-h-[70vh] flex overflow-x-auto"
+  >
+    {#each userData.UserPhoto as photo}
+      {#if isEducation1}
         <img
-          class="snap-center object-cover h-full w-full rounded-3xl p-px"
+          transition:fade
+          class="snap-center object-cover aspect-[9/16] sm:aspect-[3/4] p-px"
+          src="tmp_pkbna_d.png"
+          alt="profile photo №{photo.id}"
+        />
+        <img
+          transition:fade
+          class="snap-center object-cover aspect-[9/16] sm:aspect-[3/4] p-px"
+          src="photo2.png"
+          alt="profile photo №{photo.id}"
+        />
+      {:else}
+        <img
+          class="snap-center object-cover aspect-[9/16] sm:aspect-[3/4] p-px"
           src={PUBLIC_APIURL + photo.photoUrl}
           alt="profile photo №{photo.id}"
         />
-      {/each}
-    </div>
-
-    <section class="absolute bg-opacity-40 bg-black bottom-0 rounded-b-3xl w-full p-4 flex justify-between">
-      <div class="flex flex-col">
-        <h2 class="h2">{userData.name}, {getAge(userData.birthday)}</h2>
-        <p>{userData.geolocation}</p>
-      </div>
-      <button><i class="fa-solid fa-circle-info fa-lg" /></button>
-    </section>
+      {/if}
+    {/each}
   </div>
+
+  {#if data.isEducation}
+    <dialog
+      transition:fade
+      class="flex flex-col items-center justify-center gap-1 bg-opacity-40 absolute bg-black backdrop-blur-sm w-full h-full top-0"
+      on:pointerenter={() => data.isEducation = false}
+    >
+      <i class="fa-solid fa-arrow-right fa-2xl" />
+      <i class="fa-solid fa-hand-point-up fa-2xl" />
+      <h2 class="h2 mt-6">Scroll to view other photo</h2>
+    </dialog>
+  {/if}
+
+  <div class="hidden sm:flex absolute top-0 h-full w-full">
+    {#if data.isEducation}
+      <div
+        class="flex bg-opacity-40 bg-black backdrop-blur-sm w-full h-full top-0"
+      />
+    {:else}
+      <button
+        class="w-1/2 h-full rounded-l-3xl"
+        on:click={() => carouselLeft()}
+      />
+      <button
+        class="w-1/2 h-full rounded-r-3xl"
+        on:click={() => carouselRight()}
+      />
+    {/if}
+  </div>
+
+  <section
+    class="absolute bg-opacity-40 backdrop-blur-sm text-white bg-black bottom-0 rounded-b-3xl w-full p-4 flex justify-between"
+    bind:this={infoElem}
+  >
+    <div class="flex flex-col">
+      <h2 class="h2">{userData.name}, {getAge(userData.birthday)}</h2>
+      <p>{userData.geolocation}</p>
+      <p class="hidden opacity-0 mt-6" bind:this={infoBioElem}>
+        {userData.bio ? userData.bio : 'Пользователь решил ничего о себе не писать'}
+      </p>
+    </div>
+    <button class="h-min self-center" on:click={() => showInfo()}
+      ><i class="fa-solid fa-circle-info fa-lg" /></button
+    >
+  </section>
 {/if}
 
 <style lang="scss">

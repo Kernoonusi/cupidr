@@ -23,7 +23,7 @@ export const actions: Actions = {
       regData.bio = data.get("user-bio")?.toString()!;
 
     try {
-      let response: TokensResponse = await kyApiSimple
+      let response: TokensResponse = await kyApi(cookies)
         .post("auth/signUp", { json: regData })
         .json();
       cookies.set("accessToken", response.accessToken, {

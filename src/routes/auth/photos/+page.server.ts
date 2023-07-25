@@ -30,12 +30,12 @@ export const actions: Actions = {
         });
       }
       for (let [key, value] of data.entries()) {
+        console.log("photo sended");
+
         const photo = new FormData();
         photo.append(key, value);
 
-        let response: PhotosResponse = await kyApi(cookies)
-          .post("photos", { body: photo })
-          .json();
+        await kyApi(cookies).post("photos", { body: photo }).json();
       }
     } catch (err: unknown) {
       if (err instanceof HTTPError) {

@@ -30,13 +30,8 @@ export const actions: Actions = {
           path: "/",
         });
       }
-      let activate: ActivationResponse = await kyApiSimple
-        .get(`auth/activate/${activationCode}`, {
-          headers: {
-            Authorization: `Bearer ${cookies.get("accessToken")}`,
-            token: cookies.get("refreshToken"),
-          },
-        })
+      let activate: ActivationResponse = await kyApi(cookies)
+        .get(`auth/activate/${activationCode}`)
         .json();
     } catch (error: any) {
       console.log(error);

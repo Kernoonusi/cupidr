@@ -24,22 +24,21 @@ const api = (cookie: Cookies) => {
         },
       ],
       afterResponse: [
-        async (request, _options, response) => {  
-          console.log(response.status + 'before before tokens');
+        async (request, _options, response) => {
+          console.log(response.status + "before before tokens");
           if (response.status === 401) {
             try {
               if (cookie) {
-                console.log('before tokens');
-                
+                console.log("before tokens");
+
                 let tokens: TokensResponse = await kyApiSimple
                   .get("auth/refresh", {
                     headers: {
-                      token: cookie.get('refreshToken'),
-                    }
+                      token: cookie.get("refreshToken"),
+                    },
                   })
                   .json();
-                console.log(tokens);
-                
+
                 cookie.set("accessToken", tokens.accessToken, {
                   httpOnly: true,
                   maxAge: 60 * 15,
@@ -52,21 +51,15 @@ const api = (cookie: Cookies) => {
                 });
                 request.headers.set(
                   "Authorization",
-                  `Bearer ${tokens.accessToken}`
+                  `Bearer ${tokens.accessToken}`,
                 );
                 request.headers.set("token", tokens.refreshToken);
-                
+
                 return ky(request);
               }
             } catch (err) {
               redirect(301, "/auth");
             }
-          }
-          else if(response.status === 200){
-            return;
-          }
-          else{
-            throw new Error('Too many tries')
           }
         },
       ],

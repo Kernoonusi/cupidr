@@ -25,10 +25,8 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
       //     maxAge: 60 * 60 * 24 * 30,
       //     path: "/",
       //   });
-      // }      
-      let user: UserResponse = await kyApi(cookies)
-        .get("users/me")
-        .json();       
+      // }
+      let user: UserResponse = await kyApi(cookies).get("users/me").json();
       return {
         user,
         accessToken: cookies.get("accessToken"),

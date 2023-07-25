@@ -23,25 +23,25 @@ export const actions: Actions = {
     const photoId = data.get("photoId")?.toString()!;
 
     try {
-    //   if (!cookies.get("accessToken")) {
-    //     let tokens: TokensResponse = await kyApiSimple
-    //       .get("auth/refresh", {
-    //         headers: {
-    //           token: cookies.get("refreshToken"),
-    //         },
-    //       })
-    //       .json();
-    //     cookies.set("accessToken", tokens.accessToken, {
-    //       httpOnly: true,
-    //       maxAge: 60 * 15,
-    //       path: "/",
-    //     });
-    //     cookies.set("refreshToken", tokens.refreshToken, {
-    //       httpOnly: true,
-    //       maxAge: 60 * 60 * 24 * 30,
-    //       path: "/",
-    //     });
-    //   }
+      //   if (!cookies.get("accessToken")) {
+      //     let tokens: TokensResponse = await kyApiSimple
+      //       .get("auth/refresh", {
+      //         headers: {
+      //           token: cookies.get("refreshToken"),
+      //         },
+      //       })
+      //       .json();
+      //     cookies.set("accessToken", tokens.accessToken, {
+      //       httpOnly: true,
+      //       maxAge: 60 * 15,
+      //       path: "/",
+      //     });
+      //     cookies.set("refreshToken", tokens.refreshToken, {
+      //       httpOnly: true,
+      //       maxAge: 60 * 60 * 24 * 30,
+      //       path: "/",
+      //     });
+      //   }
       await kyApi(cookies)
         .delete(`photos/${photoId}`, {
           headers: {
@@ -66,25 +66,25 @@ export const actions: Actions = {
     const data = await request.formData();
 
     try {
-    //   if (!cookies.get("accessToken")) {
-    //     let tokens: TokensResponse = await kyApiSimple
-    //       .get("auth/refresh", {
-    //         headers: {
-    //           token: cookies.get("refreshToken"),
-    //         },
-    //       })
-    //       .json();
-    //     cookies.set("accessToken", tokens.accessToken, {
-    //       httpOnly: true,
-    //       maxAge: 60 * 15,
-    //       path: "/",
-    //     });
-    //     cookies.set("refreshToken", tokens.refreshToken, {
-    //       httpOnly: true,
-    //       maxAge: 60 * 60 * 24 * 30,
-    //       path: "/",
-    //     });
-    //   }
+      //   if (!cookies.get("accessToken")) {
+      //     let tokens: TokensResponse = await kyApiSimple
+      //       .get("auth/refresh", {
+      //         headers: {
+      //           token: cookies.get("refreshToken"),
+      //         },
+      //       })
+      //       .json();
+      //     cookies.set("accessToken", tokens.accessToken, {
+      //       httpOnly: true,
+      //       maxAge: 60 * 15,
+      //       path: "/",
+      //     });
+      //     cookies.set("refreshToken", tokens.refreshToken, {
+      //       httpOnly: true,
+      //       maxAge: 60 * 60 * 24 * 30,
+      //       path: "/",
+      //     });
+      //   }
       for (let [key, value] of data.entries()) {
         const photo = new FormData();
 
@@ -119,25 +119,25 @@ export const actions: Actions = {
     const photoId = data.get("photoId1")?.toString()!;
 
     try {
-    //   if (!cookies.get("accessToken")) {
-    //     let tokens: TokensResponse = await kyApiSimple
-    //       .get("auth/refresh", {
-    //         headers: {
-    //           token: cookies.get("refreshToken"),
-    //         },
-    //       })
-    //       .json();
-    //     cookies.set("accessToken", tokens.accessToken, {
-    //       httpOnly: true,
-    //       maxAge: 60 * 15,
-    //       path: "/",
-    //     });
-    //     cookies.set("refreshToken", tokens.refreshToken, {
-    //       httpOnly: true,
-    //       maxAge: 60 * 60 * 24 * 30,
-    //       path: "/",
-    //     });
-    //   }
+      //   if (!cookies.get("accessToken")) {
+      //     let tokens: TokensResponse = await kyApiSimple
+      //       .get("auth/refresh", {
+      //         headers: {
+      //           token: cookies.get("refreshToken"),
+      //         },
+      //       })
+      //       .json();
+      //     cookies.set("accessToken", tokens.accessToken, {
+      //       httpOnly: true,
+      //       maxAge: 60 * 15,
+      //       path: "/",
+      //     });
+      //     cookies.set("refreshToken", tokens.refreshToken, {
+      //       httpOnly: true,
+      //       maxAge: 60 * 60 * 24 * 30,
+      //       path: "/",
+      //     });
+      //   }
       await kyApi(cookies)
         .patch(`photos/makePhotoProfile`, {
           headers: {
