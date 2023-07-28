@@ -1,47 +1,19 @@
 <script lang="ts">
-  import { invalidate } from "$app/navigation";
-  import kyApi from "$lib/api/kyApi";
+  import getUserData from "$lib/api/getUserData";
   import type { UserResponse } from "$lib/types";
   import { createQuery } from "@tanstack/svelte-query";
   import type { PageData } from "./$types";
   import {
     ProgressRadial,
-    Avatar,
     toastStore,
     type ToastSettings,
   } from "@skeletonlabs/skeleton";
   import TextInput from "$lib/components/TextInput.svelte";
   import DateInput from "$lib/components/DateInput.svelte";
-  import kyApiSimple from "$lib/api/kyApiSimple";
 
   let userData: UserResponse;
   export let data: PageData;
   export let form;
-
-  async function authorization() {
-    try {
-      let user: UserResponse = await kyApiSimple
-        .get("users/me", {
-          headers: {
-            Authorization: `Bearer ${data.accessToken}`,
-            token: data.refreshToken,
-          },
-          hooks: {
-            afterResponse: [
-              async (_request, _options, response) => {
-                if (response.status === 401) {
-                  invalidate("/user");
-                }
-              },
-            ],
-          },
-        })
-        .json();
-      return user;
-    } catch (err: unknown) {
-      console.log(err);
-    }
-  }
 
   function getAge(dateString: string) {
     const today = new Date();
@@ -56,7 +28,7 @@
 
   const user = createQuery({
     queryKey: ["user"],
-    queryFn: () => authorization(),
+    queryFn: () => getUserData(data.accessToken, data.refreshToken),
     initialData: data.user,
   });
 

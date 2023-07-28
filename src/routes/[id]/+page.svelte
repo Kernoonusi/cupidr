@@ -1,8 +1,7 @@
 <script lang="ts">
   import type { PageData } from "./$types";
-  import { goto, invalidateAll } from "$app/navigation";
   import { PUBLIC_APIURL } from "$env/static/public";
-  import kyApiSimple from "$lib/api/kyApiSimple";
+  import getUserData from "$lib/api/getUserData";
   import type { UserResponse } from "$lib/types";
   import { ProgressRadial } from "@skeletonlabs/skeleton";
   import { createQuery} from "@tanstack/svelte-query";
@@ -14,37 +13,11 @@
   let infoElem: HTMLElement;
   let infoBioElem: HTMLElement;
   let isEducation1: boolean = false;
-  let avatarSrc: string;
   export let data: PageData;
-
-  async function authorization() {
-    try {
-      return await kyApiSimple
-        .get("users/me", {
-          headers: {
-            Authorization: `Bearer ${data.accessToken}`,
-            token: data.refreshToken,
-          },
-          hooks: {
-            afterResponse: [
-              async (_request, _options, response) => {
-                if (response.status === 401) {
-                  throw Error('401 not authorised maybe');
-                }
-              },
-            ],
-          },
-        })
-        .json();
-    } catch (err: unknown) {
-      console.log(err);
-      invalidateAll();
-    }
-  }
 
   const user = createQuery({
     queryKey: ["user"],
-    queryFn: () => authorization(),
+    queryFn: () => getUserData(data.accessToken, data.refreshToken),
     initialData: data.user,
   });
 

@@ -46,6 +46,6 @@ export const actions: Actions = {
       });
     }
 
-    throw redirect(301, `/1`);
+    throw redirect(301, `/0`);
   },
 };

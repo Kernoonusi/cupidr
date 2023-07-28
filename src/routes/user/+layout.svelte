@@ -1,42 +1,24 @@
 <script lang="ts">
   import { createQuery } from "@tanstack/svelte-query";
   import type { LayoutData } from "./$types";
-  import kyApi from "$lib/api/kyApi";
+  import getUserData from "$lib/api/getUserData";
   import type { UserResponse } from "$lib/types";
   import { PUBLIC_APIURL } from "$env/static/public";
-  import { invalidate } from "$app/navigation";
+  import { afterNavigate, goto, invalidate } from "$app/navigation";
   import AvatarWithName from "$lib/components/AvatarWithName.svelte";
   import { ProgressRadial } from "@skeletonlabs/skeleton";
-  import kyApiSimple from "$lib/api/kyApiSimple";
+  import { fly } from "svelte/transition";
 
   let userData: UserResponse;
   let avatarSrc: string;
-  export let data: LayoutData;
+  let navDestination = 400;
 
-  async function authorization() {
-    try {
-      return await kyApiSimple
-        .get("users/me", {
-          headers: {
-            Authorization: `Bearer ${data.accessToken}`,
-            token: data.refreshToken,
-          },
-          hooks: {
-            afterResponse: [
-              async (_request, _options, response) => {
-                if (response.status === 401) {
-                  invalidate("/user");
-                }
-              },
-            ],
-          },
-        })
-        .json();
-    } catch (err: unknown) {
-      console.log(err);
-      invalidate("/user");
-    }
-  }
+  export let data: LayoutData;
+  const user = createQuery({
+    queryKey: ["user"],
+    queryFn: () => getUserData(data.accessToken, data.refreshToken),
+    initialData: data.user,
+  });
 
   function avatarSrcSearch() {
     let photoUrl;
@@ -48,10 +30,8 @@
     avatarSrc = PUBLIC_APIURL + photoUrl;
   }
 
-  const user = createQuery({
-    queryKey: ["user"],
-    queryFn: () => authorization(),
-    initialData: data.user,
+  afterNavigate(() => {
+    navDestination = 400;
   });
 
   $: {
@@ -76,13 +56,28 @@
   <p>Error: {$user.error.message}</p>
 {:else if $user.isSuccess && userData}
   <main
-    class="m-auto card w-full sm:w-5/6 mt-5 p-4 variant-soft flex flex-col items-center"
+    class="m-auto card relative w-full sm:w-5/6 p-4 mt-5 variant-soft flex flex-col items-center"
   >
+    <button
+      class="absolute top-5 left-7 {!data.url?.split('/')[2] ? 'hidden' : ''}"
+      on:click={() => {
+        goto("/user");
+        navDestination = -400;
+      }}><i class="fa-solid fa-arrow-left fa-2xl"></i></button
+    >
     <AvatarWithName
       src={avatarSrc}
       name={userData.name}
       email={userData.email}
     />
-    <slot />
+    {#key data.url}
+      <main
+        class="w-full flex flex-col items-center"
+        in:fly={{ delay: 300, x: navDestination }}
+        out:fly={{ duration: 300, x: navDestination * -1 }}
+      >
+        <slot />
+      </main>
+    {/key}
   </main>
 {/if}

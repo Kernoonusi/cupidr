@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { invalidate } from "$app/navigation";
-  import kyApi from "$lib/api/kyApi";
+  import getUserData from "$lib/api/getUserData";
   import type { UserResponse } from "$lib/types";
   import { createQuery } from "@tanstack/svelte-query";
   import type { PageData } from "./$types";
@@ -10,42 +9,15 @@
     ProgressRadial,
     type ToastSettings,
   } from "@skeletonlabs/skeleton";
-  import { onMount } from "svelte";
   import { enhance } from "$app/forms";
   import { scale } from "svelte/transition";
   import { toastStore } from "@skeletonlabs/skeleton";
-  import kyApiSimple from "$lib/api/kyApiSimple";
 
   let userData: UserResponse;
   let photos: HTMLDivElement[] = [];
   let formElem: HTMLFormElement;
   export let data: PageData;
   export let form;
-
-  async function authorization() {
-    try {
-      let user: UserResponse = await kyApiSimple
-        .get("users/me", {
-          headers: {
-            Authorization: `Bearer ${data.accessToken}`,
-            token: data.refreshToken,
-          },
-          hooks: {
-            afterResponse: [
-              async (_request, _options, response) => {
-                if (response.status === 401) {
-                  invalidate("/user/change-photos");
-                }
-              },
-            ],
-          },
-        })
-        .json();
-      return user;
-    } catch (err: unknown) {
-      console.log(err);
-    }
-  }
 
   function deletePhoto(index: number) {
     userData.UserPhoto.splice(index, 1);
@@ -62,7 +34,7 @@
 
   const user = createQuery({
     queryKey: ["user"],
-    queryFn: () => authorization(),
+    queryFn: () => getUserData(data.accessToken, data.refreshToken),
     initialData: data.user,
   });
 

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { createQuery } from "@tanstack/svelte-query";
   import type { PageData } from "./$types";
-  import kyApi from "$lib/api/kyApi";
+  import getUserData from "$lib/api/getUserData";
   import type { UserResponse } from "$lib/types";
-  import { Avatar, ProgressRadial } from "@skeletonlabs/skeleton";
+  import { ProgressRadial } from "@skeletonlabs/skeleton";
   import { invalidate } from "$app/navigation";
   import kyApiSimple from "$lib/api/kyApiSimple";
 
@@ -37,7 +37,7 @@
 
   const user = createQuery({
     queryKey: ["user"],
-    queryFn: () => authorization(),
+    queryFn: () => getUserData(data.accessToken, data.refreshToken),
     initialData: data.user,
   });
 
