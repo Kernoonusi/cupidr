@@ -71,7 +71,7 @@
       {#each userData.UserPhoto as photo, i}
         {#if userData.UserPhoto[i]}
           <div
-            out:scale|local
+            out:scale
             bind:this={photos[i]}
             class="relative h-auto max-w-full bg-surface-600 flex justify-center"
           >

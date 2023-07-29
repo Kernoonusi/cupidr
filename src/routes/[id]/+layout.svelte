@@ -79,25 +79,20 @@
   // }
 </script>
 
-<main
-  class="m-auto flex-col items-center card relative w-full sm:w-5/6 mt-5 variant-soft flex h-[85vh]"
->
-  {#key data.id}
-    <div
-      class="relative card rounded-3xl lg:w-2/3 xl:w-3/6 2xl:w-5/12 mt-6 w-5/6 m-auto"
-      in:scale={{ delay: 200 }}
-      out:fly={{ duration: 200, x: swipeDest }}
-    >
-      <slot />
-    </div>
-  {/key}
-  <nav class="absolute bottom-6 flex mt-8 justify-center gap-32 w-full">
-    <button
-      class="btn-icon btn-icon-xl variant-filled"
-      on:click={() => dislike()}><i class="fa-solid fa-xmark fa-2xl" /></button
-    >
-    <button class="btn-icon btn-icon-xl variant-filled" on:click={() => like()}
-      ><i class="fa-solid fa-heart fa-2xl" /></button
-    >
-  </nav>
-</main>
+{#key data.id}
+  <div
+    class="relative card rounded-3xl lg:w-2/3 xl:w-3/6 2xl:w-5/12 mt-6 w-5/6 m-auto"
+    in:scale={{ delay: 200 }}
+    out:fly={{ duration: 200, x: swipeDest }}
+  >
+    <slot />
+  </div>
+{/key}
+<nav class="absolute bottom-6 flex mt-8 justify-center gap-32 w-full">
+  <button class="btn-icon btn-icon-xl variant-filled" on:click={() => dislike()}
+    ><i class="fa-solid fa-xmark fa-2xl" /></button
+  >
+  <button class="btn-icon btn-icon-xl variant-filled" on:click={() => like()}
+    ><i class="fa-solid fa-heart fa-2xl" /></button
+  >
+</nav>

@@ -55,9 +55,6 @@
 {:else if $user.isError}
   <p>Error: {$user.error.message}</p>
 {:else if $user.isSuccess && userData}
-  <main
-    class="m-auto card relative w-full sm:w-5/6 p-4 mt-5 variant-soft flex flex-col items-center"
-  >
     <button
       class="absolute top-5 left-7 {!data.url?.split('/')[2] ? 'hidden' : ''}"
       on:click={() => {
@@ -79,5 +76,4 @@
         <slot />
       </main>
     {/key}
-  </main>
 {/if}

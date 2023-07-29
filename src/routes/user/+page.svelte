@@ -61,7 +61,7 @@
     <h2 class="h2 text-center">Настройки</h2>
     <br />
     <ul
-      class="bg-surface-700 p-2 w-full rounded-xl items-start flex flex-col gap-3"
+      class="card variant-filled-surface p-2 w-full rounded-xl items-start flex flex-col gap-3"
     >
       <li class="w-full">
         <a href="/user/change-info" class="w-full">
@@ -83,15 +83,15 @@
           <span class="flex-auto w-full">Фотографии</span>
         </a>
       </li>
-      <!-- <li>
-                <a href="/user/change-info">
-                    <span class="badge"><i class="fa-solid fa-circle-info fa-lg"></i></span>
-                    <span class="flex-auto">Личные данные</span>
-                </a>
-            </li> -->
+      <li class="w-full">
+        <a href="/user/change-theme" class="w-full">
+          <span class="badge"><i class="fa-solid fa-palette fa-lg"></i></span>
+          <span class="flex-auto w-full">Внешний вид</span>
+        </a>
+      </li>
     </ul>
   </nav>
   <form action="?/logout" method="post">
-    <button type="submit" class="btn variant-soft-error mt-12">Выйти</button>
+    <button type="submit" class="btn variant-filled-primary mt-12">Выйти</button>
   </form>
 {/if}

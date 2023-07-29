@@ -45,9 +45,9 @@
 
 <AppShell>
   <svelte:fragment slot="sidebarLeft">
-    <div id="sidebar-left" class="mt-6">
+    <div id="sidebar-left">
       <nav
-        class="w-screen grid grid-cols-[min-content_min-content_1fr] items-center bg-surface-500/30 gap-4 p-4"
+        class="w-full grid grid-cols-[min-content_min-content_1fr] items-center bg-surface-500/30 gap-4 p-4"
       >
         <Avatar src={avatarSrc} width="w-11" />
         {#if showSearch}

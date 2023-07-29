@@ -2,9 +2,11 @@
   import { goto } from "$app/navigation";
 </script>
 
-<main class="w-full bg-[#E3EBE4] h-full relative overflow-hidden pb-[100px]">
+<main
+  class="w-screen bg-[#E3EBE4] h-screen relative overflow-hidden pb-[100px]"
+>
   <div
-    class="w-[2300px] h-[2300px] rounded-full border-yellow-400 bg-transparent mt-8 border-solid border-2 absolute left-[-200px] z-[0]"
+    class="w-screen h-screen rounded-full border-yellow-400 bg-transparent mt-8 border-solid border-2 absolute left-[-200px] z-[0]"
   />
   <div
     class="w-full max-w-[1200px] px-5 m-auto mt-[50px] sm:mt-[50px] md:mt-0 mb-[150px] sm:mb-[150px] md:mb-[70px] md:py-[65px] flex flex-col-reverse md:flex-row gap-10 md:justify-around 2xl:justify-between z-[1] relative items-center"
@@ -12,22 +14,36 @@
     <div
       class="flex flex-col gap-4 relative items-center sm:items-center md:items-start"
     >
-      <img class="absolute left-8 top-[-40px] z-[-1]" src="/dotted-ellipse.png" alt="" />
-      <h1 class="text-black font-bold slogan text-6xl sm:text-6xl text-center md:text-left sm:text-center">
+      <img
+        class="absolute left-8 top-[-40px] z-[-1]"
+        src="/dotted-ellipse.png"
+        alt=""
+      />
+      <h1
+        class="text-black font-bold slogan text-6xl sm:text-6xl text-center md:text-left sm:text-center"
+      >
         Meet the <br />
-        <span class="text-[#C80241] underline-offset-4 underline decoration-4">chosen one</span>
+        <span class="text-[#C80241] underline-offset-4 underline decoration-4"
+          >chosen one</span
+        >
       </h1>
       <p class="text-[#5F5F5F] text-center sm:text-center md:text-start">
-        Find your perfect match with <br /> <span class="text-[#C80241]">CUPIDR</span>, the ultimate
-        dating app.
+        Find your perfect match with <br />
+        <span class="text-[#C80241]">CUPIDR</span>, the ultimate dating app.
       </p>
-      <button on:click={() => goto("/auth")} class="bg-[#C80241] flex gap-4 items-center w-fit px-8 py-4 rounded-lg hover:bg-[#ff0051] transition-colors"
+      <button
+        on:click={() => goto("/auth")}
+        class="bg-[#C80241] flex gap-4 items-center w-fit px-8 py-4 rounded-lg hover:bg-[#ff0051] transition-colors"
         ><img src="/black-heart.png" alt="" />
         <p class="text-white">Get started now</p></button
       >
     </div>
     <div class="relative">
-      <img class="w-[500px] sm:w-[500px] md:w-[400px] lg:w-[600px] xl:w-[700px]" src="/main-poster.png" alt="" />
+      <img
+        class="w-[500px] sm:w-[500px] md:w-[400px] lg:w-[600px] xl:w-[700px]"
+        src="/main-poster.png"
+        alt=""
+      />
       <svg
         class="absolute right-[430px] top-[40px] sm:right-[430px] sm:top-[40px] md:right-[330px] md:top-[50px] lg:right-[500px] lg:top-[100px] xl:right-[600px] xl:top-[100px]"
         xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +76,9 @@
       </svg>
     </div>
   </div>
-  <div class="absolute left-[50%] translate-x-[-50%] bottom-[-150px] sm:bottom-[-150px] md:bottom-[-370px]">
+  <div
+    class="absolute left-[50%] translate-x-[-50%] bottom-[-150px] sm:bottom-[-150px] md:bottom-[-370px]"
+  >
     <svg
       class="w-[800px] sm:w-[800px] lg:w-[1920px] md:w-[1400px] h-[400px] sm:h-[400px] md:h-[661px]"
       xmlns="http://www.w3.org/2000/svg"
@@ -79,9 +97,9 @@
 </main>
 
 <style lang="scss">
-  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;200;300;400;500;600;700;800&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Sora:wght@100;200;300;400;500;600;700;800&display=swap");
   * {
-    font-family: 'Sora', sans-serif;
+    font-family: "Sora", sans-serif;
   }
 
   @media (min-width: 768px) and (max-width: 1150px) {
