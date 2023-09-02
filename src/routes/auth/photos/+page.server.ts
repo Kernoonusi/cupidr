@@ -10,25 +10,6 @@ export const actions: Actions = {
     const data = await request.formData();
 
     try {
-      if (!cookies.get("accessToken")) {
-        let tokens: TokensResponse = await kyApi(cookies)
-          .get("auth/refresh", {
-            headers: {
-              token: cookies.get("refreshToken"),
-            },
-          })
-          .json();
-        cookies.set("accessToken", tokens.accessToken, {
-          httpOnly: true,
-          maxAge: 60 * 15,
-          path: "/",
-        });
-        cookies.set("refreshToken", tokens.refreshToken, {
-          httpOnly: true,
-          maxAge: 60 * 60 * 24 * 30,
-          path: "/",
-        });
-      }
       for (let [key, value] of data.entries()) {
         console.log("photo sended");
 

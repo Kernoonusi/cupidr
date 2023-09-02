@@ -65,86 +65,75 @@
 {:else if $user.isError}
   <p>Error: {$user.error.message}</p>
 {:else if $user.isSuccess && userData}
-  <div>
-    <h2 class="h2 mt-6 text-center">Ваши фото</h2>
-    <section class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
-      {#each userData.UserPhoto as photo, i}
-        {#if userData.UserPhoto[i]}
-          <div
-            out:scale
-            bind:this={photos[i]}
-            class="relative h-auto max-w-full bg-surface-600 flex justify-center"
-          >
-            <form action="?/deletePhoto" method="post" use:enhance>
-              <input
-                type="text"
-                name="photoId"
-                class="hidden"
-                value={photo.id}
-              />
-              <button
-                type="submit"
-                class="btn-icon btn-icon-sm variant-filled absolute top-1 left-1"
-                on:click={() => deletePhoto(i)}
-                ><i class="fa-solid fa-xmark fa-lg" /></button
-              >
-            </form>
-            <form
-              action="?/makePhotoProfile"
-              method="post"
-              use:enhance
-              on:submit|preventDefault={() => makePhotoProfile(i)}
-            >
-              <input
-                type="text"
-                name="photoId1"
-                class="hidden"
-                value={photo.id}
-              />
-              <button
-                type="submit"
-                class="btn-icon btn-icon-sm {userData.UserPhoto[i].isProfile
-                  ? 'variant-filled-primary'
-                  : 'variant-filled'} absolute top-1 right-1"
-                ><i class="fa-solid fa-star fa-lg" /></button
-              >
-            </form>
-            <img
-              class="h-40 w-full object-cover rounded-lg bg-surface-600"
-              src={PUBLIC_APIURL + photo.photoUrl}
-              alt="profile {photo.id}"
-            />
-          </div>
-        {/if}
-      {/each}
-      {#if userData.UserPhoto.length != 5}
-        <form
-          action="?/uploadPhoto"
-          bind:this={formElem}
-          method="post"
-          class="w-full"
-          enctype="multipart/form-data"
+  <h2 class="h2 mt-6 text-center">Ваши фото</h2>
+  <section class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+    {#each userData.UserPhoto as photo, i}
+      {#if userData.UserPhoto[i]}
+        <div
+          out:scale
+          bind:this={photos[i]}
+          class="relative h-auto max-w-full bg-surface-600 rounded-2xl flex justify-center"
         >
-          <FileDropzone
-            name="file"
-            multiple
-            rounded="rounded-2xl"
-            on:change={() => formElem.submit()}
+          <form action="?/deletePhoto" method="post" use:enhance on:submit|preventDefault={() => deletePhoto(i)}>
+            <input type="text" name="photoId" class="hidden" value={photo.id} />
+            <button
+              type="submit"
+              class="btn-icon btn-icon-sm variant-filled absolute top-1 left-1"
+              ><i class="fa-solid fa-xmark fa-lg" /></button
+            >
+          </form>
+          <form
+            action="?/makePhotoProfile"
+            method="post"
+            use:enhance
+            on:submit|preventDefault={() => makePhotoProfile(i)}
           >
-            <svelte:fragment slot="lead"
-              ><i class="fa-solid fa-file-image fa-2xl" /></svelte:fragment
+            <input
+              type="text"
+              name="photoId1"
+              class="hidden"
+              value={photo.id}
+            />
+            <button
+              type="submit"
+              class="btn-icon btn-icon-sm {userData.UserPhoto[i].isProfile
+                ? 'variant-filled-primary'
+                : 'variant-filled'} absolute top-1 right-1"
+              ><i class="fa-solid fa-star fa-lg" /></button
             >
-            <svelte:fragment slot="message">Загрузите ваше фото</svelte:fragment
-            >
-            <svelte:fragment slot="meta">PNG, JPG, JPEG</svelte:fragment>
-          </FileDropzone>
-        </form>
-      {:else}
-        <div class="card p-4" />
+          </form>
+          <img
+            class="w-[300px] aspect-square object-cover rounded-2xl bg-surface-600"
+            src={PUBLIC_APIURL + photo.photoUrl}
+            alt="profile {photo.id}"
+          />
+        </div>
       {/if}
-      <section />
-    </section>
-  </div>
+    {/each}
+    {#if userData.UserPhoto.length != 5}
+      <form
+        action="?/uploadPhoto"
+        bind:this={formElem}
+        method="POST"
+        class="w-full h-full"
+        enctype="multipart/form-data"
+      >
+        <FileDropzone
+          name="file"
+          multiple
+          rounded="rounded-2xl"
+          on:change={() => formElem.submit()}
+        >
+          <svelte:fragment slot="lead"><i class="fa-solid fa-file-image fa-2xl" /></svelte:fragment>
+          <svelte:fragment slot="message">Загрузите ваше фото</svelte:fragment>
+          <svelte:fragment slot="meta">PNG, JPG, JPEG</svelte:fragment>
+        </FileDropzone>
+      </form>
+    {:else}
+      <div class="card p-4" />
+    {/if}
+    <section />
+  </section>
 {/if}
 
 <style lang="scss">

@@ -18,6 +18,7 @@ export const load: LayoutServerLoad = async ({ cookies, url }) => {
   if (cookies.get("refreshToken")) {
     try {
       let user: UserResponse = await kyApi(cookies).get("users/me").json();
+
       return {
         isLoggedIn: true,
         url: url.pathname,
@@ -28,6 +29,5 @@ export const load: LayoutServerLoad = async ({ cookies, url }) => {
     } catch (err: unknown) {
       console.log(err);
     }
-  }
-  return {};
+  } else return { isLoggedIn: false, url: url.pathname };
 };

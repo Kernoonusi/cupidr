@@ -12,22 +12,13 @@
   import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
   import { browser } from "$app/environment";
   import { onMount } from "svelte";
-  import { beforeNavigate, goto } from "$app/navigation";
+  import { goto } from "$app/navigation";
   import { fly } from "svelte/transition";
   import { autoModeWatcher } from "@skeletonlabs/skeleton";
 
   export let data;
   let navDestination: number;
   let isLoggedIn: boolean = false;
-
-  // beforeNavigate((e) => {
-  //     if(e.to?.url.pathname == '/' && e.from?.url.pathname == '/user'){
-  //         navDestination = 400;
-  //     }
-  //     else if(e.to?.url.pathname == '/' && e.from?.url.pathname == '/chat'){
-  //         navDestination = -400;
-  //     }
-  // });
 
   onMount(async () => {
     if (data.isLoggedIn) {
@@ -77,15 +68,23 @@
           <!--  -->
 
           <!-- Desktop -->
-          <div class="gap-4 h2 items-center hidden sm:flex">
-            <img src="/logo.svg" alt="" class="w-12" />CUPIDR
-          </div>
+          <button
+            on:click={() => {
+              navDestination =
+                data.url?.split("/")[1] == "user"
+                  ? 400
+                  : data.url?.split("/")[1] == "chat"
+                  ? -400
+                  : navDestination;
+              goto("/");
+            }}
+            class="btn w-fit sm:flex text-4xl items-center gap-4 hidden"
+            ><img src="/logo.svg" alt="" class="w-12" />CUPIDR
+          </button>
           <!--  -->
-
         </svelte:fragment>
         <!-- Mobile -->
-        <a
-          href="/"
+        <button
           on:click={() => {
             navDestination =
               data.url?.split("/")[1] == "user"
@@ -93,21 +92,22 @@
                 : data.url?.split("/")[1] == "chat"
                 ? -400
                 : navDestination;
+            goto("/swipes");
           }}
-          class="h1 flex items-center gap-4 sm:hidden"
-          ><img src="/logo.svg" alt="" class="w-12" />CUPIDR</a
-        >
+          class="btn w-fit flex text-4xl items-center gap-4 sm:hidden"
+          ><img src="/logo.svg" alt="" class="w-12" />CUPIDR
+        </button>
         <!--  -->
 
         <!-- Desktop -->
-        <nav class="flex gap-4">
+        <nav class="gap-4 {isLoggedIn ? 'hidden sm:flex' : 'hidden'}">
           <!-- Swipes -->
           <button
             on:click={() => {
-              goto(`/`);
-              navDestination = -400
+              goto(`/swipes`);
+              navDestination = -400;
             }}
-            class="btn gap-4 {isLoggedIn ? '' : 'hidden'}"
+            class="btn gap-4"
             data-sveltekit-preload-data="hover"
             ><i class="fa-solid fa-users fa-2xl"></i> Свайпы</button
           >
@@ -116,14 +116,14 @@
           <button
             on:click={() => {
               goto(`/chat`);
-              navDestination = 
+              navDestination =
                 data.url?.split("/")[1] == "user"
                   ? -400
                   : Number(data.url?.split("/")[1])
                   ? 400
                   : navDestination;
             }}
-            class="btn gap-4 {isLoggedIn ? '' : 'hidden'}"
+            class="btn gap-4"
             data-sveltekit-preload-data="hover"
             ><i class="fa-solid fa-comments fa-2xl"></i> Чаты</button
           >
@@ -137,7 +137,7 @@
               goto(`/chat`);
               navDestination = 400;
             }}
-            class="btn variant-filled sm:hidden {isLoggedIn ? '' : 'hidden'}"
+            class="btn {isLoggedIn ? 'sm:hidden' : 'hidden'}"
             data-sveltekit-preload-data="hover"
             ><i class="fa-solid fa-comments fa-2xl"></i></button
           >
@@ -146,18 +146,22 @@
           <!-- Desktop -->
 
           <!-- Logged in -->
-          <div class="flex gap-4 items-center {isLoggedIn ? '' : 'hidden'}">
+          <div
+            class="gap-4 items-center cursor-pointer hover:variant-outline-primary rounded-full p-1 {isLoggedIn
+              ? 'hidden sm:flex'
+              : 'hidden'}"
+          >
             <Avatar
               src={data.userAvatar}
               on:click={() => {
                 goto(`/user`);
                 navDestination = 400;
               }}
-            ></Avatar>
+            />
           </div>
 
           <!-- No logged in -->
-          <div class="gap-4 {!isLoggedIn ? 'sm:flex' : 'hidden'}">
+          <div class="gap-4 {!isLoggedIn ? 'hidden sm:flex' : 'hidden'}">
             <!-- Sing in -->
             <button
               on:click={() => {
@@ -182,13 +186,19 @@
       </AppBar>
     </svelte:fragment>
     {#key data.url?.split("/")[1]}
-      <main
-        in:fly={{ delay: 300, x: navDestination }}
-        out:fly={{ duration: 300, x: navDestination * -1 }}
-        class="m-auto card relative w-full sm:w-5/6 p-4 mt-5 variant-soft flex flex-col items-center"
-      >
-        <slot />
-      </main>
+      {#if data.url?.split("/")[1] === ""}
+        <main class="w-full h-[91vh] bg-[#E3EBE4] relative overflow-hidden pb-[100px]">
+          <slot />
+        </main>
+      {:else}
+        <main
+          in:fly={{ delay: 300, x: navDestination }}
+          out:fly={{ duration: 300, x: navDestination * -1 }}
+          class="m-auto card relative w-full sm:w-5/6 p-4 mt-5 variant-soft flex flex-col items-center"
+        >
+          <slot />
+        </main>
+      {/if}
     {/key}
   </AppShell>
   <Toast />

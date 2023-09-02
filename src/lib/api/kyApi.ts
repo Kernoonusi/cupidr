@@ -38,7 +38,7 @@ const api = (cookie: Cookies) => {
                     },
                   })
                   .json();
-
+                console.log("after tokens");
                 cookie.set("accessToken", tokens.accessToken, {
                   httpOnly: true,
                   maxAge: 60 * 15,

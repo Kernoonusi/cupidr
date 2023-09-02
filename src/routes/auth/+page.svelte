@@ -210,7 +210,7 @@
 
     <section class="flex flex-col gap-4 snap-start" id="step3">
       <span class="text-2xl text-center">Ваш пол</span>
-      <div class="flex flex-col items-center justify-center gap-4">
+      <div class="flex flex-col lg:flex-row items-center justify-center gap-4">
         <label class="flex justify-center items-center">
           <input
             type="radio"
@@ -250,7 +250,7 @@
         <span class="text-red-600 warn">{genderWarn}</span>
       {/if}
       <span class="text-2xl text-center">Я ищу</span>
-      <div class="flex flex-col items-center justify-center gap-4">
+      <div class="flex flex-col lg:flex-row items-center justify-center gap-4">
         <label class="flex justify-center items-center">
           <input
             type="radio"

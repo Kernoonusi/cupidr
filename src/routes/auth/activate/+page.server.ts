@@ -3,6 +3,7 @@ import { redirect, fail } from "@sveltejs/kit";
 import type { ActivationResponse, TokensResponse } from "$lib/types";
 import kyApi from "$lib/api/kyApi";
 import kyApiSimple from "$lib/api/kyApiSimple";
+import { invalidateAll } from "$app/navigation";
 
 export const actions: Actions = {
   activation: async ({ cookies, request }) => {
@@ -33,6 +34,7 @@ export const actions: Actions = {
       let activate: ActivationResponse = await kyApi(cookies)
         .get(`auth/activate/${activationCode}`)
         .json();
+      invalidateAll();
     } catch (error: any) {
       console.log(error);
       console.log(error.status);
