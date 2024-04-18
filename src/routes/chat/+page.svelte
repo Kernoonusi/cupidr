@@ -3,3 +3,4 @@
     
     export let data: PageData;
 </script>
+<nav class="w-full h-[70vh] p-4">Тут Чат</nav>

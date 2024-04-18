@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import { PUBLIC_APIURL } from "$env/static/public";
-  import type { UserResponse } from "$lib/types";
+  import type { PhotosResponse, UserResponse } from "$lib/types";
   import {
     ProgressRadial,
     toastStore,
@@ -13,6 +13,7 @@
   import { invalidateAll } from "$app/navigation";
   import kyApiSimple from "$lib/api/kyApiSimple";
   import ky from "ky";
+  import getUserData from "$lib/api/getUserData";
 
   let isOpen = false;
   let userData: UserResponse;
@@ -20,12 +21,13 @@
   let infoBioElem: HTMLElement;
   let isEducation1: boolean = false;
   let swipeDest: number;
+  let match: UserResponse;
   export let data: PageData;
   export let form;
 
-  async function getUserData() {
+  async function getMatchesData() {
     try {
-      if (data.matches[0] && data.matches[0].id !== 0) {
+      if (data.matches[0] && data.matches[0].id != 0) {
         let user: UserResponse = await kyApiSimple
           .get(`users/${data.matches[0].id}`, {
             headers: {
@@ -46,7 +48,7 @@
           .json();
         console.log(user);
         return user;
-      } else {
+      } else if(isEducation1) {
         let user: UserResponse = {
           id: 0,
           email: "example@mail.su",
@@ -75,7 +77,13 @@
 
   const user = createQuery({
     queryKey: ["user"],
-    queryFn: getUserData,
+    queryFn: () => getUserData(data.accessToken, data.refreshToken),
+    initialData: data.user,
+  });
+
+  const matches = createQuery({
+    queryKey: ["matches"],
+    queryFn: getMatchesData,
     initialData: data.matches[0],
   });
 
@@ -88,6 +96,14 @@
       age--;
     }
     return age;
+  }
+
+  function getSrc(photo: PhotosResponse) {
+    if (!isEducation1) {
+      return PUBLIC_APIURL + photo.photoUrl;
+    } else {
+      return photo.photoUrl;
+    }
   }
 
   let elemCarousel: HTMLDivElement;
@@ -159,17 +175,30 @@
   }
 
   $: {
-    if ($user.data && !$user.error && !isEducation1) {
-      userData = $user.data;
-    } else if (data.matches) {
-      userData = data.matches[0];
+    if ($user.data && !$user.error) {
+      userData = $user.data as UserResponse;
+    } else{
+      userData = data.user;
+    }
+    if ($matches.data && !$matches.error) {
+      match = $matches.data;
+    } else{
+      match = data.matches[0];
     }
   }
 
   $: {
     if ($user.isError) {
       const t: ToastSettings = {
-        message: $user.error.message,
+        message: ($user.error as { message: string }).message,
+        background: "variant-filled-error",
+        timeout: 10000,
+      };
+      toastStore.trigger(t);
+    }
+    if ($matches.isError) {
+      const t: ToastSettings = {
+        message: ($matches.error as { message: string }).message,
         background: "variant-filled-error",
         timeout: 10000,
       };
@@ -178,7 +207,7 @@
   }
 
   $: {
-    if (form) {
+    if (form && data.matches.at(-1) != form[0]) {
       data.matches.push(form[0]);
     }
   }
@@ -188,11 +217,11 @@
   });
 </script>
 
-{#if $user.isLoading}
+{#if $user.isLoading || $matches.isLoading}
   <div class="flex justify-center mt-64">
     <ProgressRadial />
   </div>
-{:else if userData}
+{:else if userData && match}
   {#key data.matches[0]}
     <div
       class="relative card rounded-3xl lg:w-2/3 xl:w-3/6 2xl:w-5/12 mt-6 w-5/6 m-auto"
@@ -203,28 +232,13 @@
         bind:this={elemCarousel}
         class="snap-x snap-mandatory rounded-3xl scroll-smooth hide-scrollbar max-h-[70vh] flex overflow-x-auto"
       >
-        {#if userData.UserPhoto[0]}
-          {#each userData.UserPhoto as photo}
-            <!-- {#if isEducation1}
-              <img
-                transition:fade
-                class="snap-center object-cover aspect-[9/16] sm:aspect-[3/4] p-px"
-                src="tmp_pkbna_d.png"
-                alt="profile photo №{photo.id}"
-              />
-              <img
-                transition:fade
-                class="snap-center object-cover aspect-[9/16] sm:aspect-[3/4] p-px"
-                src="photo2.png"
-                alt="profile photo №{photo.id}"
-              />
-            {:else} -->
-              <img
-                class="snap-center object-cover aspect-[9/16] sm:aspect-[3/4] p-px w-[600px]"
-                src={PUBLIC_APIURL + photo.photoUrl}
-                alt="profile photo №{photo.id}"
-              />
-            <!-- {/if} -->
+        {#if match.UserPhoto[0]}
+          {#each match.UserPhoto as photo}
+            <img
+              class="snap-center object-cover aspect-[9/16] sm:aspect-[3/4] p-px w-[600px]"
+              src={getSrc(photo)}
+              alt="profile photo №{photo.id}"
+            />
           {/each}
         {:else}
           <div
@@ -290,11 +304,11 @@
         bind:this={infoElem}
       >
         <div class="flex flex-col">
-          <h2 class="h2">{userData.name}, {getAge(userData.birthday)}</h2>
-          <p>{userData.geolocation}</p>
+          <h2 class="h2">{match.name}, {getAge(match.birthday)}</h2>
+          <p>{match.geolocation}</p>
           <p class="hidden opacity-0 mt-6" bind:this={infoBioElem}>
-            {userData.bio
-              ? userData.bio
+            {match.bio
+              ? match.bio
               : "Пользователь решил ничего о себе не писать"}
           </p>
         </div>
@@ -307,7 +321,7 @@
   <br /><br /><br /><br />
   <nav class="absolute bottom-6 flex justify-center gap-32 w-full">
     <form action="?/dislike" method="post">
-      <input type="text" value={userData.id} name="id" class="hidden" />
+      <input type="text" value={match.id} name="id" class="hidden" />
       <button
         type="submit"
         class="btn-icon btn-icon-xl variant-filled"
@@ -318,15 +332,14 @@
       >
     </form>
     <form action="?/like" method="post">
-      <input type="text" value={userData.id} name="id" class="hidden" />
+      <input type="text" value={match.id} name="id" class="hidden" />
       <button
         type="submit"
         class="btn-icon btn-icon-xl variant-filled"
         on:click={() => {
           swipeDest = 400;
           data.matches.shift();
-        }}
-        ><i class="fa-solid fa-heart fa-2xl" /></button
+        }}><i class="fa-solid fa-heart fa-2xl" /></button
       >
     </form>
   </nav>

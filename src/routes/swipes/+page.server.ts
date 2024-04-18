@@ -35,7 +35,9 @@ export const load: PageServerLoad = async ({ cookies, parent }) => {
         .get(`matches/myMatches?limit=1`)
         .json();
       cookies.set("first-time", "no");
+      let me: UserResponse = await kyApi(cookies).get("users/me").json();
       return {
+        user: me,
         matches: [user, user2[0]],
         isEducation: true,
         accessToken: cookies.get("accessToken"),
@@ -45,7 +47,9 @@ export const load: PageServerLoad = async ({ cookies, parent }) => {
       let matches: UserResponse[] = await kyApi(cookies)
         .get(`matches/myMatches?limit=2`)
         .json();
+      let me: UserResponse = await kyApi(cookies).get("users/me").json();
       return {
+        user: me,
         matches,
         isEducation: false,
         accessToken: cookies.get("accessToken"),
@@ -63,7 +67,8 @@ export const actions: Actions = {
 
     try {
       if (data.get("id")?.toString() !== "0")
-      await kyApi(cookies).get(`matches/like/${data.get("id")?.toString()}`);
+        await kyApi(cookies).get(`matches/like/${data.get("id")?.toString()}`);
+
       let matches: UserResponse[] = await kyApi(cookies)
         .get(`matches/myMatches?limit=1`)
         .json();
@@ -77,8 +82,10 @@ export const actions: Actions = {
 
     try {
       if (data.get("id")?.toString() !== "0")
-        await kyApi(cookies).get(`matches/dislike/${data.get("id")?.toString()}`);
-      
+        await kyApi(cookies).get(
+          `matches/dislike/${data.get("id")?.toString()}`,
+        );
+
       let matches: UserResponse[] = await kyApi(cookies)
         .get(`matches/myMatches?limit=1`)
         .json();

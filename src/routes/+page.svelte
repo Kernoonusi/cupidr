@@ -84,7 +84,7 @@
   class="absolute left-[50%] translate-x-[-50%] bottom-[-150px] sm:bottom-[-150px] md:bottom-[-370px]"
 >
   <svg
-    class="w-[800px] sm:w-[800px] lg:w-[1920px] xl:w-[2200px] md:w-[1400px] h-[400px] sm:h-[400px] md:h-[661px] xl:h-[881px]"
+    class="w-[800px] sm:w-[800px] lg:w-[1920px] xl:w-[100vw] md:w-[1400px] h-[400px] sm:h-[400px] md:h-[661px] xl:h-[881px]"
     xmlns="http://www.w3.org/2000/svg"
     height="661"
     viewBox="0 0 1920 661"
